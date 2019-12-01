@@ -50,6 +50,12 @@ public class ViewPoliklinik extends javax.swing.JFrame {
         this.setLocationRelativeTo(null);
         nama = session;
         id = username;
+        conn = Conf.databaseConnected();
+        auth = new Auth();
+        tblPoli.setModel(fc.getModelPoliklinik());
+        fc.setTablePoliklinik();
+        fc.loadPoliklinik();
+        fc.readPoliklinik();
     }
     
     private void cari(){

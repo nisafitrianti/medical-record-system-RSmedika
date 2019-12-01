@@ -5,20 +5,152 @@
  */
 package medical.record.View;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.swing.JOptionPane;
+import javax.swing.table.DefaultTableModel;
+import medical.record.Controller.Auth;
+import medical.record.Controller.Conf;
+import medical.record.Controller.Service;
+import medical.record.Model.Pasien;
+
 
 
 /**
  *
  * @author Acer
  */
-public class ViewAdmin extends javax.swing.JFrame {
+public final class ViewAdmin extends javax.swing.JFrame {
 
     /**
      * Creates new form ViewAdmin
      */
+    
+    Connection conn = Conf.databaseConnected();
+    Service function;
+    Auth auth = new Auth();
+    Conf conf = new Conf();
+    PreparedStatement sst;
+    DefaultTableModel modelKaryawan, modelDokter, modelPasien;   
+    int id; String nama;
+    
     public ViewAdmin() {
         initComponents();
     }
+
+    ViewAdmin(String session, int username) {
+        initComponents();
+        nama = session;
+        id = username;
+        function = new Service(conn);        
+        modelDokter = function.getModelDokter();
+        modelPasien = function.getModelPasien();
+        modelKaryawan = function.getModelKaryawan();
+        
+        loadSpesialisCB();
+        loadPoliklinikCB();
+        
+        tblPegawai.setModel(modelKaryawan);
+        setKaryawan();
+        function.loadKaryawan();
+        function.readKaryawan();
+        
+        tblDokter.setModel(modelDokter);
+        setDokter();
+        function.loadDokter();
+        function.readDokter();
+        
+        tblPasien.setModel(modelPasien);
+        setPasien();
+        function.loadPasien();
+        function.readPasien();
+    }
+    
+    // nama, gender, tanggal lahir, tanggal mulai kerja, no telpon, alamat status, pass
+    private void setKaryawan(){
+        modelKaryawan.addColumn("NIP");
+        modelKaryawan.addColumn("Nama");
+        modelKaryawan.addColumn("Gender");
+        modelKaryawan.addColumn("Tanggal Lahir");
+        modelKaryawan.addColumn("Mulai Kerja");
+        modelKaryawan.addColumn("Telepon");
+        modelKaryawan.addColumn("Status");
+    }
+   
+    // nip nama mulai kerja  telepon spesialisasi   
+    private void setDokter(){
+        modelDokter.addColumn("NIP");
+        modelDokter.addColumn("Nama");
+        modelDokter.addColumn("Mulai Kerja");
+        modelDokter.addColumn("Telepon");
+        modelDokter.addColumn("Spesialisasi");
+    }
+    
+    //nama, gender, tanggal lahir, umur , notelp, pekerjaan, alamat    
+    private void setPasien(){
+        modelPasien.addColumn("Id Pasien");
+        modelPasien.addColumn("Nama");
+        modelPasien.addColumn("Gender");
+        modelPasien.addColumn("Umur");
+        modelPasien.addColumn("Telepon");
+        modelPasien.addColumn("Pekerjaan");
+    }
+    
+    private void reset (){
+        tfNamaKaryawan.setText("");
+        tfGenderKaryawan.setSelectedIndex(0);
+        tfPassKaryawan.setText("");
+        cbStatus.setSelectedIndex(0);
+        dcLahirKaryawan.setDate(null);
+        dcMulaiKerjaKaryawan.setDate(null);
+    }
+    
+     public void loadSpesialisCB(){
+        try {
+            String query = "SELECT * FROM spesialisasi";
+            PreparedStatement ps = conn.prepareStatement(query);
+            ResultSet neSet = ps.executeQuery();
+            while(neSet.next()){
+                Object[] obj = new Object[2];
+                obj[0] = neSet.getString(1);
+                obj[1] = neSet.getString(2);
+                cbKdSpesialis1.addItem((String) obj[0] +" - "+ (String) obj[1]);
+            }
+            
+            neSet.close(); 
+            ps.close();
+            
+        } catch (SQLException ex) {
+            Logger.getLogger(Service.class.getName()).log(Level.SEVERE, null, ex);
+        }
+      }
+     
+      public void loadPoliklinikCB(){
+        try {
+            String query = "SELECT * FROM poliklinik";
+            PreparedStatement ps = conn.prepareStatement(query);
+            ResultSet neSet = ps.executeQuery();
+            while(neSet.next()){
+                Object[] obj = new Object[2];
+                obj[0] = neSet.getString(1);
+                obj[1] = neSet.getString(2);
+                cbKdPoliklinik.addItem((String) obj[0] +" - "+ (String) obj[1]);
+            }
+            
+            neSet.close(); 
+            ps.close();
+            
+        } catch (SQLException ex) {
+            Logger.getLogger(Service.class.getName()).log(Level.SEVERE, null, ex);
+        }
+      }
+   
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -31,91 +163,76 @@ public class ViewAdmin extends javax.swing.JFrame {
 
         jPanel1 = new javax.swing.JPanel();
         jPanel2 = new javax.swing.JPanel();
-        btnBack = new javax.swing.JLabel();
         jLabel1 = new javax.swing.JLabel();
-        jLabel3 = new javax.swing.JLabel();
         jLabel5 = new javax.swing.JLabel();
         jLabel4 = new javax.swing.JLabel();
-        btnPoliklinik = new javax.swing.JButton();
         btnPasien = new javax.swing.JButton();
         btnDokter = new javax.swing.JButton();
         btnPegawai = new javax.swing.JButton();
-        jPanel3 = new javax.swing.JPanel();
-        ListDokter = new javax.swing.JPanel();
-        jLabel2 = new javax.swing.JLabel();
-        jLabel6 = new javax.swing.JLabel();
-        jTextField1 = new javax.swing.JTextField();
-        jLabel7 = new javax.swing.JLabel();
-        jTextField2 = new javax.swing.JTextField();
-        jLabel8 = new javax.swing.JLabel();
-        jTextField3 = new javax.swing.JTextField();
-        jLabel9 = new javax.swing.JLabel();
-        jTextField4 = new javax.swing.JTextField();
-        jLabel10 = new javax.swing.JLabel();
-        jTextField5 = new javax.swing.JTextField();
-        jLabel11 = new javax.swing.JLabel();
-        jTextField6 = new javax.swing.JTextField();
-        jScrollPane1 = new javax.swing.JScrollPane();
-        jTable1 = new javax.swing.JTable();
-        jButton5 = new javax.swing.JButton();
-        jButton6 = new javax.swing.JButton();
-        ListPasien = new javax.swing.JPanel();
-        jLabel12 = new javax.swing.JLabel();
-        jLabel13 = new javax.swing.JLabel();
-        jTextField7 = new javax.swing.JTextField();
-        jLabel14 = new javax.swing.JLabel();
-        jTextField8 = new javax.swing.JTextField();
-        jLabel15 = new javax.swing.JLabel();
-        jTextField9 = new javax.swing.JTextField();
-        jLabel16 = new javax.swing.JLabel();
-        jTextField10 = new javax.swing.JTextField();
-        jLabel17 = new javax.swing.JLabel();
-        jTextField11 = new javax.swing.JTextField();
-        jLabel18 = new javax.swing.JLabel();
-        jTextField12 = new javax.swing.JTextField();
-        jScrollPane2 = new javax.swing.JScrollPane();
-        jTable2 = new javax.swing.JTable();
-        jButton7 = new javax.swing.JButton();
-        jButton8 = new javax.swing.JButton();
-        ListPoliklinik = new javax.swing.JPanel();
-        jLabel19 = new javax.swing.JLabel();
-        jLabel20 = new javax.swing.JLabel();
-        jTextField13 = new javax.swing.JTextField();
-        jLabel21 = new javax.swing.JLabel();
-        jTextField14 = new javax.swing.JTextField();
-        jLabel22 = new javax.swing.JLabel();
-        jTextField15 = new javax.swing.JTextField();
-        jLabel23 = new javax.swing.JLabel();
-        jTextField16 = new javax.swing.JTextField();
-        jLabel24 = new javax.swing.JLabel();
-        jTextField17 = new javax.swing.JTextField();
-        jLabel25 = new javax.swing.JLabel();
-        jTextField18 = new javax.swing.JTextField();
-        jScrollPane3 = new javax.swing.JScrollPane();
-        jTable3 = new javax.swing.JTable();
-        tambah = new javax.swing.JButton();
-        reset = new javax.swing.JButton();
+        jLabel34 = new javax.swing.JLabel();
+        btnLogout = new javax.swing.JLabel();
+        uwaw = new javax.swing.JPanel();
         ListPegawai = new javax.swing.JPanel();
         jLabel26 = new javax.swing.JLabel();
         jLabel27 = new javax.swing.JLabel();
-        jTextField19 = new javax.swing.JTextField();
+        tfNamaKaryawan = new javax.swing.JTextField();
         jLabel28 = new javax.swing.JLabel();
-        jTextField20 = new javax.swing.JTextField();
         jLabel29 = new javax.swing.JLabel();
-        jTextField21 = new javax.swing.JTextField();
         jLabel30 = new javax.swing.JLabel();
-        jTextField22 = new javax.swing.JTextField();
-        jLabel31 = new javax.swing.JLabel();
-        jTextField23 = new javax.swing.JTextField();
-        jLabel32 = new javax.swing.JLabel();
-        jTextField24 = new javax.swing.JTextField();
         jScrollPane4 = new javax.swing.JScrollPane();
-        jTable4 = new javax.swing.JTable();
-        jButton9 = new javax.swing.JButton();
-        jButton10 = new javax.swing.JButton();
+        tblPegawai = new javax.swing.JTable();
+        btnTambahKaryawan = new javax.swing.JButton();
+        jLabel35 = new javax.swing.JLabel();
+        cbStatus = new javax.swing.JComboBox<>();
+        tfPassKaryawan = new javax.swing.JTextField();
+        jLabel33 = new javax.swing.JLabel();
+        dcLahirKaryawan = new com.toedter.calendar.JDateChooser();
+        dcMulaiKerjaKaryawan = new com.toedter.calendar.JDateChooser();
+        tfGenderKaryawan = new javax.swing.JComboBox<>();
+        ListDokter = new javax.swing.JPanel();
+        jLabel2 = new javax.swing.JLabel();
+        jLabel6 = new javax.swing.JLabel();
+        tfNamaDokter = new javax.swing.JTextField();
+        jLabel7 = new javax.swing.JLabel();
+        jLabel8 = new javax.swing.JLabel();
+        jLabel9 = new javax.swing.JLabel();
+        jLabel10 = new javax.swing.JLabel();
+        tfTeleponDokter = new javax.swing.JTextField();
+        jLabel11 = new javax.swing.JLabel();
+        tfAlamatDokter = new javax.swing.JTextField();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        tblDokter = new javax.swing.JTable();
+        btnTambahDokter = new javax.swing.JButton();
+        tfPassDokter = new javax.swing.JTextField();
+        jLabel19 = new javax.swing.JLabel();
+        dcLahirDokter = new com.toedter.calendar.JDateChooser();
+        dcKerjaDokter = new com.toedter.calendar.JDateChooser();
+        tfGenderDokter = new javax.swing.JComboBox<>();
+        jLabel20 = new javax.swing.JLabel();
+        jLabel21 = new javax.swing.JLabel();
+        cbKdSpesialis1 = new javax.swing.JComboBox<>();
+        cbKdPoliklinik = new javax.swing.JComboBox<>();
+        ListPasien = new javax.swing.JPanel();
+        jLabel12 = new javax.swing.JLabel();
+        jLabel13 = new javax.swing.JLabel();
+        tfNamaPasien = new javax.swing.JTextField();
+        jLabel14 = new javax.swing.JLabel();
+        jLabel15 = new javax.swing.JLabel();
+        jLabel16 = new javax.swing.JLabel();
+        tfUmurPasien = new javax.swing.JTextField();
+        jLabel17 = new javax.swing.JLabel();
+        tfTeleponPasien = new javax.swing.JTextField();
+        jLabel18 = new javax.swing.JLabel();
+        tfAlamatPasien = new javax.swing.JTextField();
+        jScrollPane2 = new javax.swing.JScrollPane();
+        tblPasien = new javax.swing.JTable();
+        btnTambahPasien = new javax.swing.JButton();
+        tfPekerjaanPasien = new javax.swing.JTextField();
+        tfPekerjaan = new javax.swing.JLabel();
+        tfGenderPasien = new javax.swing.JComboBox<>();
+        dcLahirPasien = new com.toedter.calendar.JDateChooser();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-        setMaximumSize(new java.awt.Dimension(1440, 1024));
         setMinimumSize(new java.awt.Dimension(1440, 1024));
         setResizable(false);
 
@@ -124,531 +241,90 @@ public class ViewAdmin extends javax.swing.JFrame {
         jPanel1.setMaximumSize(new java.awt.Dimension(1440, 1024));
         jPanel1.setMinimumSize(new java.awt.Dimension(1440, 1024));
         jPanel1.setPreferredSize(new java.awt.Dimension(1440, 1024));
+        jPanel1.setLayout(null);
 
         jPanel2.setBackground(new java.awt.Color(42, 147, 151));
 
-        btnBack.setIcon(new javax.swing.ImageIcon(getClass().getResource("/medical/record/assets/rekam-medik-asset/arrow-back.png"))); // NOI18N
-        btnBack.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                btnBackMouseClicked(evt);
-            }
-        });
-
         jLabel1.setFont(new java.awt.Font("Dialog", 1, 36)); // NOI18N
         jLabel1.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel1.setText("Admin");
+        jLabel1.setText("Hello ADMIN");
 
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
         jPanel2Layout.setHorizontalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel2Layout.createSequentialGroup()
-                .addGap(61, 61, 61)
-                .addComponent(btnBack)
-                .addGap(47, 47, 47)
+                .addGap(35, 35, 35)
                 .addComponent(jLabel1)
-                .addContainerGap(241, Short.MAX_VALUE))
+                .addContainerGap(45, Short.MAX_VALUE))
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel2Layout.createSequentialGroup()
-                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel2Layout.createSequentialGroup()
-                        .addContainerGap()
-                        .addComponent(btnBack))
-                    .addGroup(jPanel2Layout.createSequentialGroup()
-                        .addGap(31, 31, 31)
-                        .addComponent(jLabel1)))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
+                .addContainerGap(34, Short.MAX_VALUE)
+                .addComponent(jLabel1)
+                .addGap(31, 31, 31))
         );
 
-        jLabel3.setIcon(new javax.swing.ImageIcon(getClass().getResource("/medical/record/assets/rekam-medik-asset/Group 27.png"))); // NOI18N
+        jPanel1.add(jPanel2);
+        jPanel2.setBounds(0, 67, 291, 112);
 
         jLabel5.setIcon(new javax.swing.ImageIcon(getClass().getResource("/medical/record/assets/rekam-medik-asset/Group 42.png"))); // NOI18N
+        jPanel1.add(jLabel5);
+        jLabel5.setBounds(1030, 820, 420, 210);
 
         jLabel4.setForeground(new java.awt.Color(0, 153, 153));
         jLabel4.setIcon(new javax.swing.ImageIcon(getClass().getResource("/medical/record/assets/rekam-medik-asset/Group 41.png"))); // NOI18N
+        jPanel1.add(jLabel4);
+        jLabel4.setBounds(0, 840, 127, 186);
 
-        btnPoliklinik.setText("Poliklinik");
-
+        btnPasien.setBackground(new java.awt.Color(42, 147, 151));
+        btnPasien.setForeground(new java.awt.Color(255, 255, 255));
         btnPasien.setText("Pasien");
         btnPasien.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btnPasienActionPerformed(evt);
             }
         });
+        jPanel1.add(btnPasien);
+        btnPasien.setBounds(480, 310, 130, 32);
 
+        btnDokter.setBackground(new java.awt.Color(42, 147, 151));
+        btnDokter.setForeground(new java.awt.Color(255, 255, 255));
         btnDokter.setText("Dokter");
         btnDokter.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btnDokterActionPerformed(evt);
             }
         });
+        jPanel1.add(btnDokter);
+        btnDokter.setBounds(330, 310, 130, 32);
 
+        btnPegawai.setBackground(new java.awt.Color(42, 147, 151));
+        btnPegawai.setForeground(new java.awt.Color(255, 255, 255));
         btnPegawai.setText("Pegawai");
         btnPegawai.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btnPegawaiActionPerformed(evt);
             }
         });
+        jPanel1.add(btnPegawai);
+        btnPegawai.setBounds(180, 310, 130, 32);
 
-        jPanel3.setLayout(new java.awt.CardLayout());
+        jLabel34.setIcon(new javax.swing.ImageIcon(getClass().getResource("/medical/record/assets/rekam-medik-asset/Group 45.png"))); // NOI18N
+        jPanel1.add(jLabel34);
+        jLabel34.setBounds(550, 30, 331, 201);
 
-        ListDokter.setBackground(new java.awt.Color(255, 255, 255));
-        ListDokter.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(153, 153, 153)));
-        ListDokter.setForeground(new java.awt.Color(0, 0, 0));
-
-        jLabel2.setFont(new java.awt.Font("Dialog", 1, 18)); // NOI18N
-        jLabel2.setForeground(new java.awt.Color(0, 0, 0));
-        jLabel2.setText("Tambah Data Dokter");
-
-        jLabel6.setBackground(new java.awt.Color(255, 255, 255));
-        jLabel6.setForeground(new java.awt.Color(0, 0, 0));
-        jLabel6.setText("nama");
-
-        jTextField1.setText("jTextField1");
-
-        jLabel7.setBackground(new java.awt.Color(255, 255, 255));
-        jLabel7.setForeground(new java.awt.Color(0, 0, 0));
-        jLabel7.setText("gender");
-
-        jTextField2.setText("jTextField2");
-
-        jLabel8.setBackground(new java.awt.Color(255, 255, 255));
-        jLabel8.setForeground(new java.awt.Color(0, 0, 0));
-        jLabel8.setText("Tanggal Lahir");
-
-        jTextField3.setText("jTextField3");
-
-        jLabel9.setBackground(new java.awt.Color(255, 255, 255));
-        jLabel9.setForeground(new java.awt.Color(0, 0, 0));
-        jLabel9.setText("tanggal mulai kerja");
-
-        jTextField4.setText("jTextField4");
-
-        jLabel10.setBackground(new java.awt.Color(255, 255, 255));
-        jLabel10.setForeground(new java.awt.Color(0, 0, 0));
-        jLabel10.setText("no telepon");
-
-        jTextField5.setText("jTextField5");
-
-        jLabel11.setBackground(new java.awt.Color(255, 255, 255));
-        jLabel11.setForeground(new java.awt.Color(0, 0, 0));
-        jLabel11.setText("alamat");
-
-        jTextField6.setText("jTextField6");
-
-        jTable1.setModel(new javax.swing.table.DefaultTableModel(
-            new Object [][] {
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null}
-            },
-            new String [] {
-                "Title 1", "Title 2", "Title 3", "Title 4"
-            }
-        ));
-        jScrollPane1.setViewportView(jTable1);
-
-        jButton5.setText("tambah");
-        jButton5.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton5ActionPerformed(evt);
+        btnLogout.setIcon(new javax.swing.ImageIcon(getClass().getResource("/medical/record/assets/rekam-medik-asset/Group 57.png"))); // NOI18N
+        btnLogout.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                btnLogoutMouseClicked(evt);
             }
         });
+        jPanel1.add(btnLogout);
+        btnLogout.setBounds(1170, 80, 220, 90);
 
-        jButton6.setText("reset");
-
-        javax.swing.GroupLayout ListDokterLayout = new javax.swing.GroupLayout(ListDokter);
-        ListDokter.setLayout(ListDokterLayout);
-        ListDokterLayout.setHorizontalGroup(
-            ListDokterLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(ListDokterLayout.createSequentialGroup()
-                .addGap(47, 47, 47)
-                .addGroup(ListDokterLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(ListDokterLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                        .addGroup(ListDokterLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addGroup(ListDokterLayout.createSequentialGroup()
-                                .addGroup(ListDokterLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(jLabel8)
-                                    .addComponent(jLabel7)
-                                    .addComponent(jLabel6))
-                                .addGap(49, 49, 49)
-                                .addGroup(ListDokterLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                    .addComponent(jTextField1)
-                                    .addComponent(jTextField2)
-                                    .addComponent(jTextField3, javax.swing.GroupLayout.PREFERRED_SIZE, 311, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                            .addGroup(ListDokterLayout.createSequentialGroup()
-                                .addComponent(jLabel11)
-                                .addGap(87, 87, 87)
-                                .addComponent(jTextField6, javax.swing.GroupLayout.PREFERRED_SIZE, 311, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                        .addGroup(ListDokterLayout.createSequentialGroup()
-                            .addGroup(ListDokterLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, ListDokterLayout.createSequentialGroup()
-                                    .addComponent(jLabel9)
-                                    .addGap(18, 18, 18))
-                                .addGroup(ListDokterLayout.createSequentialGroup()
-                                    .addComponent(jLabel10)
-                                    .addGap(67, 67, 67)))
-                            .addGroup(ListDokterLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                .addComponent(jTextField4)
-                                .addComponent(jTextField5, javax.swing.GroupLayout.PREFERRED_SIZE, 311, javax.swing.GroupLayout.PREFERRED_SIZE))))
-                    .addComponent(jLabel2)
-                    .addGroup(ListDokterLayout.createSequentialGroup()
-                        .addComponent(jButton5)
-                        .addGap(36, 36, 36)
-                        .addComponent(jButton6)))
-                .addGap(40, 40, 40)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 576, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(14, Short.MAX_VALUE))
-        );
-        ListDokterLayout.setVerticalGroup(
-            ListDokterLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(ListDokterLayout.createSequentialGroup()
-                .addGroup(ListDokterLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(ListDokterLayout.createSequentialGroup()
-                        .addGap(53, 53, 53)
-                        .addComponent(jLabel2)
-                        .addGap(35, 35, 35)
-                        .addGroup(ListDokterLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jLabel6)
-                            .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(16, 16, 16)
-                        .addGroup(ListDokterLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jTextField2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jLabel7))
-                        .addGap(18, 18, 18)
-                        .addGroup(ListDokterLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jLabel8)
-                            .addComponent(jTextField3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(ListDokterLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(jLabel9)
-                            .addComponent(jTextField4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(18, 18, 18)
-                        .addGroup(ListDokterLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jLabel10)
-                            .addComponent(jTextField5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(18, 18, 18)
-                        .addGroup(ListDokterLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jLabel11)
-                            .addComponent(jTextField6, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(56, 56, 56)
-                        .addGroup(ListDokterLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jButton5)
-                            .addComponent(jButton6)))
-                    .addGroup(ListDokterLayout.createSequentialGroup()
-                        .addGap(30, 30, 30)
-                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 484, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(21, Short.MAX_VALUE))
-        );
-
-        jPanel3.add(ListDokter, "card2");
-
-        ListPasien.setBackground(new java.awt.Color(255, 255, 255));
-        ListPasien.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(153, 153, 153)));
-        ListPasien.setForeground(new java.awt.Color(0, 0, 0));
-
-        jLabel12.setFont(new java.awt.Font("Dialog", 1, 18)); // NOI18N
-        jLabel12.setForeground(new java.awt.Color(0, 0, 0));
-        jLabel12.setText("Tambah Data Pasien");
-
-        jLabel13.setBackground(new java.awt.Color(255, 255, 255));
-        jLabel13.setForeground(new java.awt.Color(0, 0, 0));
-        jLabel13.setText("nama");
-
-        jTextField7.setText("jTextField1");
-
-        jLabel14.setBackground(new java.awt.Color(255, 255, 255));
-        jLabel14.setForeground(new java.awt.Color(0, 0, 0));
-        jLabel14.setText("gender");
-
-        jTextField8.setText("jTextField2");
-
-        jLabel15.setBackground(new java.awt.Color(255, 255, 255));
-        jLabel15.setForeground(new java.awt.Color(0, 0, 0));
-        jLabel15.setText("Tanggal Lahir");
-
-        jTextField9.setText("jTextField3");
-
-        jLabel16.setBackground(new java.awt.Color(255, 255, 255));
-        jLabel16.setForeground(new java.awt.Color(0, 0, 0));
-        jLabel16.setText("tanggal mulai kerja");
-
-        jTextField10.setText("jTextField4");
-
-        jLabel17.setBackground(new java.awt.Color(255, 255, 255));
-        jLabel17.setForeground(new java.awt.Color(0, 0, 0));
-        jLabel17.setText("no telepon");
-
-        jTextField11.setText("jTextField5");
-
-        jLabel18.setBackground(new java.awt.Color(255, 255, 255));
-        jLabel18.setForeground(new java.awt.Color(0, 0, 0));
-        jLabel18.setText("alamat");
-
-        jTextField12.setText("jTextField6");
-
-        jTable2.setModel(new javax.swing.table.DefaultTableModel(
-            new Object [][] {
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null}
-            },
-            new String [] {
-                "Title 1", "Title 2", "Title 3", "Title 4"
-            }
-        ));
-        jScrollPane2.setViewportView(jTable2);
-
-        jButton7.setText("tambah");
-        jButton7.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton7ActionPerformed(evt);
-            }
-        });
-
-        jButton8.setText("reset");
-
-        javax.swing.GroupLayout ListPasienLayout = new javax.swing.GroupLayout(ListPasien);
-        ListPasien.setLayout(ListPasienLayout);
-        ListPasienLayout.setHorizontalGroup(
-            ListPasienLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(ListPasienLayout.createSequentialGroup()
-                .addGap(47, 47, 47)
-                .addGroup(ListPasienLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(ListPasienLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                        .addGroup(ListPasienLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addGroup(ListPasienLayout.createSequentialGroup()
-                                .addGroup(ListPasienLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(jLabel15)
-                                    .addComponent(jLabel14)
-                                    .addComponent(jLabel13))
-                                .addGap(49, 49, 49)
-                                .addGroup(ListPasienLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                    .addComponent(jTextField7)
-                                    .addComponent(jTextField8)
-                                    .addComponent(jTextField9, javax.swing.GroupLayout.PREFERRED_SIZE, 311, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                            .addGroup(ListPasienLayout.createSequentialGroup()
-                                .addComponent(jLabel18)
-                                .addGap(87, 87, 87)
-                                .addComponent(jTextField12, javax.swing.GroupLayout.PREFERRED_SIZE, 311, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                        .addGroup(ListPasienLayout.createSequentialGroup()
-                            .addGroup(ListPasienLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, ListPasienLayout.createSequentialGroup()
-                                    .addComponent(jLabel16)
-                                    .addGap(18, 18, 18))
-                                .addGroup(ListPasienLayout.createSequentialGroup()
-                                    .addComponent(jLabel17)
-                                    .addGap(67, 67, 67)))
-                            .addGroup(ListPasienLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                .addComponent(jTextField10)
-                                .addComponent(jTextField11, javax.swing.GroupLayout.PREFERRED_SIZE, 311, javax.swing.GroupLayout.PREFERRED_SIZE))))
-                    .addComponent(jLabel12)
-                    .addGroup(ListPasienLayout.createSequentialGroup()
-                        .addComponent(jButton7)
-                        .addGap(36, 36, 36)
-                        .addComponent(jButton8)))
-                .addGap(40, 40, 40)
-                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 576, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(14, Short.MAX_VALUE))
-        );
-        ListPasienLayout.setVerticalGroup(
-            ListPasienLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(ListPasienLayout.createSequentialGroup()
-                .addGroup(ListPasienLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(ListPasienLayout.createSequentialGroup()
-                        .addGap(53, 53, 53)
-                        .addComponent(jLabel12)
-                        .addGap(35, 35, 35)
-                        .addGroup(ListPasienLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jLabel13)
-                            .addComponent(jTextField7, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(16, 16, 16)
-                        .addGroup(ListPasienLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jTextField8, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jLabel14))
-                        .addGap(18, 18, 18)
-                        .addGroup(ListPasienLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jLabel15)
-                            .addComponent(jTextField9, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(ListPasienLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(jLabel16)
-                            .addComponent(jTextField10, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(18, 18, 18)
-                        .addGroup(ListPasienLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jLabel17)
-                            .addComponent(jTextField11, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(18, 18, 18)
-                        .addGroup(ListPasienLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jLabel18)
-                            .addComponent(jTextField12, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(56, 56, 56)
-                        .addGroup(ListPasienLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jButton7)
-                            .addComponent(jButton8)))
-                    .addGroup(ListPasienLayout.createSequentialGroup()
-                        .addGap(30, 30, 30)
-                        .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 484, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(21, Short.MAX_VALUE))
-        );
-
-        jPanel3.add(ListPasien, "card2");
-
-        ListPoliklinik.setBackground(new java.awt.Color(255, 255, 255));
-        ListPoliklinik.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(153, 153, 153)));
-        ListPoliklinik.setForeground(new java.awt.Color(0, 0, 0));
-
-        jLabel19.setFont(new java.awt.Font("Dialog", 1, 18)); // NOI18N
-        jLabel19.setForeground(new java.awt.Color(0, 0, 0));
-        jLabel19.setText("Tambah Data Poliklinik");
-
-        jLabel20.setBackground(new java.awt.Color(255, 255, 255));
-        jLabel20.setForeground(new java.awt.Color(0, 0, 0));
-        jLabel20.setText("nama");
-
-        jTextField13.setText("jTextField1");
-
-        jLabel21.setBackground(new java.awt.Color(255, 255, 255));
-        jLabel21.setForeground(new java.awt.Color(0, 0, 0));
-        jLabel21.setText("gender");
-
-        jTextField14.setText("jTextField2");
-
-        jLabel22.setBackground(new java.awt.Color(255, 255, 255));
-        jLabel22.setForeground(new java.awt.Color(0, 0, 0));
-        jLabel22.setText("Tanggal Lahir");
-
-        jTextField15.setText("jTextField3");
-
-        jLabel23.setBackground(new java.awt.Color(255, 255, 255));
-        jLabel23.setForeground(new java.awt.Color(0, 0, 0));
-        jLabel23.setText("tanggal mulai kerja");
-
-        jTextField16.setText("jTextField4");
-
-        jLabel24.setBackground(new java.awt.Color(255, 255, 255));
-        jLabel24.setForeground(new java.awt.Color(0, 0, 0));
-        jLabel24.setText("no telepon");
-
-        jTextField17.setText("jTextField5");
-
-        jLabel25.setBackground(new java.awt.Color(255, 255, 255));
-        jLabel25.setForeground(new java.awt.Color(0, 0, 0));
-        jLabel25.setText("alamat");
-
-        jTextField18.setText("jTextField6");
-
-        jTable3.setModel(new javax.swing.table.DefaultTableModel(
-            new Object [][] {
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null}
-            },
-            new String [] {
-                "Title 1", "Title 2", "Title 3", "Title 4"
-            }
-        ));
-        jScrollPane3.setViewportView(jTable3);
-
-        tambah.setText("tambah");
-        tambah.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                tambahActionPerformed(evt);
-            }
-        });
-
-        reset.setText("reset");
-
-        javax.swing.GroupLayout ListPoliklinikLayout = new javax.swing.GroupLayout(ListPoliklinik);
-        ListPoliklinik.setLayout(ListPoliklinikLayout);
-        ListPoliklinikLayout.setHorizontalGroup(
-            ListPoliklinikLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(ListPoliklinikLayout.createSequentialGroup()
-                .addGap(47, 47, 47)
-                .addGroup(ListPoliklinikLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(ListPoliklinikLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                        .addGroup(ListPoliklinikLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addGroup(ListPoliklinikLayout.createSequentialGroup()
-                                .addGroup(ListPoliklinikLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(jLabel22)
-                                    .addComponent(jLabel21)
-                                    .addComponent(jLabel20))
-                                .addGap(49, 49, 49)
-                                .addGroup(ListPoliklinikLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                    .addComponent(jTextField13)
-                                    .addComponent(jTextField14)
-                                    .addComponent(jTextField15, javax.swing.GroupLayout.PREFERRED_SIZE, 311, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                            .addGroup(ListPoliklinikLayout.createSequentialGroup()
-                                .addComponent(jLabel25)
-                                .addGap(87, 87, 87)
-                                .addComponent(jTextField18, javax.swing.GroupLayout.PREFERRED_SIZE, 311, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                        .addGroup(ListPoliklinikLayout.createSequentialGroup()
-                            .addGroup(ListPoliklinikLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, ListPoliklinikLayout.createSequentialGroup()
-                                    .addComponent(jLabel23)
-                                    .addGap(18, 18, 18))
-                                .addGroup(ListPoliklinikLayout.createSequentialGroup()
-                                    .addComponent(jLabel24)
-                                    .addGap(67, 67, 67)))
-                            .addGroup(ListPoliklinikLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                .addComponent(jTextField16)
-                                .addComponent(jTextField17, javax.swing.GroupLayout.PREFERRED_SIZE, 311, javax.swing.GroupLayout.PREFERRED_SIZE))))
-                    .addComponent(jLabel19)
-                    .addGroup(ListPoliklinikLayout.createSequentialGroup()
-                        .addComponent(tambah)
-                        .addGap(36, 36, 36)
-                        .addComponent(reset)))
-                .addGap(40, 40, 40)
-                .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 576, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(14, Short.MAX_VALUE))
-        );
-        ListPoliklinikLayout.setVerticalGroup(
-            ListPoliklinikLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(ListPoliklinikLayout.createSequentialGroup()
-                .addGroup(ListPoliklinikLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(ListPoliklinikLayout.createSequentialGroup()
-                        .addGap(53, 53, 53)
-                        .addComponent(jLabel19)
-                        .addGap(35, 35, 35)
-                        .addGroup(ListPoliklinikLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jLabel20)
-                            .addComponent(jTextField13, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(16, 16, 16)
-                        .addGroup(ListPoliklinikLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jTextField14, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jLabel21))
-                        .addGap(18, 18, 18)
-                        .addGroup(ListPoliklinikLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jLabel22)
-                            .addComponent(jTextField15, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(ListPoliklinikLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(jLabel23)
-                            .addComponent(jTextField16, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(18, 18, 18)
-                        .addGroup(ListPoliklinikLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jLabel24)
-                            .addComponent(jTextField17, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(18, 18, 18)
-                        .addGroup(ListPoliklinikLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jLabel25)
-                            .addComponent(jTextField18, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(56, 56, 56)
-                        .addGroup(ListPoliklinikLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(tambah)
-                            .addComponent(reset)))
-                    .addGroup(ListPoliklinikLayout.createSequentialGroup()
-                        .addGap(30, 30, 30)
-                        .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 484, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(21, Short.MAX_VALUE))
-        );
-
-        jPanel3.add(ListPoliklinik, "card2");
+        uwaw.setLayout(new java.awt.CardLayout());
 
         ListPegawai.setBackground(new java.awt.Color(255, 255, 255));
         ListPegawai.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(153, 153, 153)));
@@ -662,59 +338,70 @@ public class ViewAdmin extends javax.swing.JFrame {
         jLabel27.setForeground(new java.awt.Color(0, 0, 0));
         jLabel27.setText("nama");
 
-        jTextField19.setText("jTextField1");
-
         jLabel28.setBackground(new java.awt.Color(255, 255, 255));
         jLabel28.setForeground(new java.awt.Color(0, 0, 0));
         jLabel28.setText("gender");
-
-        jTextField20.setText("jTextField2");
 
         jLabel29.setBackground(new java.awt.Color(255, 255, 255));
         jLabel29.setForeground(new java.awt.Color(0, 0, 0));
         jLabel29.setText("Tanggal Lahir");
 
-        jTextField21.setText("jTextField3");
-
         jLabel30.setBackground(new java.awt.Color(255, 255, 255));
         jLabel30.setForeground(new java.awt.Color(0, 0, 0));
         jLabel30.setText("tanggal mulai kerja");
 
-        jTextField22.setText("jTextField4");
-
-        jLabel31.setBackground(new java.awt.Color(255, 255, 255));
-        jLabel31.setForeground(new java.awt.Color(0, 0, 0));
-        jLabel31.setText("no telepon");
-
-        jTextField23.setText("jTextField5");
-
-        jLabel32.setBackground(new java.awt.Color(255, 255, 255));
-        jLabel32.setForeground(new java.awt.Color(0, 0, 0));
-        jLabel32.setText("alamat");
-
-        jTextField24.setText("jTextField6");
-
-        jTable4.setModel(new javax.swing.table.DefaultTableModel(
+        tblPegawai.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null}
+                {null, null, null, null, null, null},
+                {null, null, null, null, null, null},
+                {null, null, null, null, null, null},
+                {null, null, null, null, null, null}
             },
             new String [] {
-                "Title 1", "Title 2", "Title 3", "Title 4"
+                "NIP", "Nama", "Gender", "Tanggal Lahir", "Mulai Kerja", "status"
             }
-        ));
-        jScrollPane4.setViewportView(jTable4);
+        ) {
+            Class[] types = new Class [] {
+                java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class
+            };
+            boolean[] canEdit = new boolean [] {
+                false, false, false, false, false, false
+            };
 
-        jButton9.setText("tambah");
-        jButton9.addActionListener(new java.awt.event.ActionListener() {
+            public Class getColumnClass(int columnIndex) {
+                return types [columnIndex];
+            }
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
+        jScrollPane4.setViewportView(tblPegawai);
+
+        btnTambahKaryawan.setText("tambah");
+        btnTambahKaryawan.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton9ActionPerformed(evt);
+                btnTambahKaryawanActionPerformed(evt);
             }
         });
 
-        jButton10.setText("reset");
+        jLabel35.setBackground(new java.awt.Color(255, 255, 255));
+        jLabel35.setForeground(new java.awt.Color(0, 0, 0));
+        jLabel35.setText("status");
+
+        cbStatus.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "karyawan", "admin" }));
+
+        tfPassKaryawan.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                tfPassKaryawanActionPerformed(evt);
+            }
+        });
+
+        jLabel33.setBackground(new java.awt.Color(255, 255, 255));
+        jLabel33.setForeground(new java.awt.Color(0, 0, 0));
+        jLabel33.setText("password");
+
+        tfGenderKaryawan.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "F", "M" }));
 
         javax.swing.GroupLayout ListPegawaiLayout = new javax.swing.GroupLayout(ListPegawai);
         ListPegawai.setLayout(ListPegawaiLayout);
@@ -724,40 +411,34 @@ public class ViewAdmin extends javax.swing.JFrame {
                 .addGap(47, 47, 47)
                 .addGroup(ListPegawaiLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(ListPegawaiLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                        .addGroup(ListPegawaiLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addGroup(ListPegawaiLayout.createSequentialGroup()
-                                .addGroup(ListPegawaiLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(jLabel29)
-                                    .addComponent(jLabel28)
-                                    .addComponent(jLabel27))
-                                .addGap(49, 49, 49)
-                                .addGroup(ListPegawaiLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                    .addComponent(jTextField19)
-                                    .addComponent(jTextField20)
-                                    .addComponent(jTextField21, javax.swing.GroupLayout.PREFERRED_SIZE, 311, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                            .addGroup(ListPegawaiLayout.createSequentialGroup()
-                                .addComponent(jLabel32)
-                                .addGap(87, 87, 87)
-                                .addComponent(jTextField24, javax.swing.GroupLayout.PREFERRED_SIZE, 311, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addGroup(ListPegawaiLayout.createSequentialGroup()
+                            .addGroup(ListPegawaiLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                .addComponent(jLabel29)
+                                .addComponent(jLabel28)
+                                .addComponent(jLabel27))
+                            .addGap(49, 49, 49)
+                            .addGroup(ListPegawaiLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                .addComponent(tfNamaKaryawan, javax.swing.GroupLayout.PREFERRED_SIZE, 311, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addComponent(dcLahirKaryawan, javax.swing.GroupLayout.PREFERRED_SIZE, 184, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addComponent(tfGenderKaryawan, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
                         .addGroup(ListPegawaiLayout.createSequentialGroup()
                             .addGroup(ListPegawaiLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                 .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, ListPegawaiLayout.createSequentialGroup()
                                     .addComponent(jLabel30)
                                     .addGap(18, 18, 18))
-                                .addGroup(ListPegawaiLayout.createSequentialGroup()
-                                    .addComponent(jLabel31)
-                                    .addGap(67, 67, 67)))
-                            .addGroup(ListPegawaiLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                .addComponent(jTextField22)
-                                .addComponent(jTextField23, javax.swing.GroupLayout.PREFERRED_SIZE, 311, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                                .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, ListPegawaiLayout.createSequentialGroup()
+                                    .addComponent(jLabel35)
+                                    .addGap(90, 90, 90)))
+                            .addGroup(ListPegawaiLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                .addComponent(cbStatus, javax.swing.GroupLayout.PREFERRED_SIZE, 106, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addComponent(tfPassKaryawan, javax.swing.GroupLayout.PREFERRED_SIZE, 311, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addComponent(dcMulaiKerjaKaryawan, javax.swing.GroupLayout.PREFERRED_SIZE, 184, javax.swing.GroupLayout.PREFERRED_SIZE))))
                     .addComponent(jLabel26)
-                    .addGroup(ListPegawaiLayout.createSequentialGroup()
-                        .addComponent(jButton9)
-                        .addGap(36, 36, 36)
-                        .addComponent(jButton10)))
-                .addGap(40, 40, 40)
-                .addComponent(jScrollPane4, javax.swing.GroupLayout.PREFERRED_SIZE, 576, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(14, Short.MAX_VALUE))
+                    .addComponent(btnTambahKaryawan, javax.swing.GroupLayout.PREFERRED_SIZE, 142, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel33))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 41, Short.MAX_VALUE)
+                .addComponent(jScrollPane4, javax.swing.GroupLayout.PREFERRED_SIZE, 662, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(49, 49, 49))
         );
         ListPegawaiLayout.setVerticalGroup(
             ListPegawaiLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -769,98 +450,332 @@ public class ViewAdmin extends javax.swing.JFrame {
                         .addGap(35, 35, 35)
                         .addGroup(ListPegawaiLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(jLabel27)
-                            .addComponent(jTextField19, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(16, 16, 16)
+                            .addComponent(tfNamaKaryawan, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(15, 15, 15)
                         .addGroup(ListPegawaiLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jTextField20, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jLabel28))
+                            .addComponent(jLabel28)
+                            .addComponent(tfGenderKaryawan, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addGap(18, 18, 18)
-                        .addGroup(ListPegawaiLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addGroup(ListPegawaiLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(jLabel29)
-                            .addComponent(jTextField21, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(dcLahirKaryawan, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(ListPegawaiLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                        .addGroup(ListPegawaiLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(jLabel30)
-                            .addComponent(jTextField22, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(dcMulaiKerjaKaryawan, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(ListPegawaiLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(cbStatus, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jLabel35))
                         .addGap(18, 18, 18)
-                        .addGroup(ListPegawaiLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jLabel31)
-                            .addComponent(jTextField23, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(18, 18, 18)
-                        .addGroup(ListPegawaiLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jLabel32)
-                            .addComponent(jTextField24, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(56, 56, 56)
-                        .addGroup(ListPegawaiLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jButton9)
-                            .addComponent(jButton10)))
+                        .addGroup(ListPegawaiLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jLabel33)
+                            .addComponent(tfPassKaryawan, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(28, 28, 28)
+                        .addComponent(btnTambahKaryawan))
                     .addGroup(ListPegawaiLayout.createSequentialGroup()
                         .addGap(30, 30, 30)
                         .addComponent(jScrollPane4, javax.swing.GroupLayout.PREFERRED_SIZE, 484, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap(21, Short.MAX_VALUE))
         );
 
-        jPanel3.add(ListPegawai, "card2");
+        uwaw.add(ListPegawai, "card2");
 
-        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
-        jPanel1.setLayout(jPanel1Layout);
-        jPanel1Layout.setHorizontalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel1Layout.createSequentialGroup()
-                .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 0, Short.MAX_VALUE))
-            .addGroup(jPanel1Layout.createSequentialGroup()
-                .addGap(166, 166, 166)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, 1116, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addComponent(btnPasien)
-                        .addGap(18, 18, 18)
-                        .addComponent(btnDokter)
-                        .addGap(18, 18, 18)
-                        .addComponent(btnPegawai)
-                        .addGap(18, 18, 18)
-                        .addComponent(btnPoliklinik)))
-                .addContainerGap(158, Short.MAX_VALUE))
-            .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                .addGroup(jPanel1Layout.createSequentialGroup()
-                    .addGap(0, 0, Short.MAX_VALUE)
-                    .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                        .addGroup(jPanel1Layout.createSequentialGroup()
-                            .addGap(1005, 1005, 1005)
-                            .addComponent(jLabel3))
-                        .addGroup(jPanel1Layout.createSequentialGroup()
-                            .addComponent(jLabel4)
-                            .addGap(893, 893, 893)
-                            .addComponent(jLabel5)))
-                    .addGap(0, 0, Short.MAX_VALUE)))
+        ListDokter.setBackground(new java.awt.Color(255, 255, 255));
+        ListDokter.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(153, 153, 153)));
+        ListDokter.setForeground(new java.awt.Color(0, 0, 0));
+        ListDokter.setLayout(null);
+
+        jLabel2.setFont(new java.awt.Font("Dialog", 1, 18)); // NOI18N
+        jLabel2.setForeground(new java.awt.Color(0, 0, 0));
+        jLabel2.setText("Tambah Data Dokter");
+        ListDokter.add(jLabel2);
+        jLabel2.setBounds(48, 54, 177, 24);
+
+        jLabel6.setBackground(new java.awt.Color(255, 255, 255));
+        jLabel6.setForeground(new java.awt.Color(0, 0, 0));
+        jLabel6.setText("nama");
+        ListDokter.add(jLabel6);
+        jLabel6.setBounds(48, 117, 32, 16);
+        ListDokter.add(tfNamaDokter);
+        tfNamaDokter.setBounds(174, 113, 311, 24);
+
+        jLabel7.setBackground(new java.awt.Color(255, 255, 255));
+        jLabel7.setForeground(new java.awt.Color(0, 0, 0));
+        jLabel7.setText("gender");
+        ListDokter.add(jLabel7);
+        jLabel7.setBounds(48, 157, 40, 16);
+
+        jLabel8.setBackground(new java.awt.Color(255, 255, 255));
+        jLabel8.setForeground(new java.awt.Color(0, 0, 0));
+        jLabel8.setText("Tanggal Lahir");
+        ListDokter.add(jLabel8);
+        jLabel8.setBounds(48, 201, 77, 16);
+
+        jLabel9.setBackground(new java.awt.Color(255, 255, 255));
+        jLabel9.setForeground(new java.awt.Color(0, 0, 0));
+        jLabel9.setText("Kode Spesialisasi");
+        ListDokter.add(jLabel9);
+        jLabel9.setBounds(50, 320, 108, 16);
+
+        jLabel10.setBackground(new java.awt.Color(255, 255, 255));
+        jLabel10.setForeground(new java.awt.Color(0, 0, 0));
+        jLabel10.setText("no telepon");
+        ListDokter.add(jLabel10);
+        jLabel10.setBounds(50, 360, 59, 16);
+        ListDokter.add(tfTeleponDokter);
+        tfTeleponDokter.setBounds(170, 350, 311, 24);
+
+        jLabel11.setBackground(new java.awt.Color(255, 255, 255));
+        jLabel11.setForeground(new java.awt.Color(0, 0, 0));
+        jLabel11.setText("alamat");
+        ListDokter.add(jLabel11);
+        jLabel11.setBounds(50, 380, 39, 16);
+        ListDokter.add(tfAlamatDokter);
+        tfAlamatDokter.setBounds(170, 380, 311, 24);
+
+        tblDokter.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null}
+            },
+            new String [] {
+                "NIP", "Nama", "Mulai Kerja", "Telepon", "Spesialisasi"
+            }
+        ) {
+            Class[] types = new Class [] {
+                java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class
+            };
+            boolean[] canEdit = new boolean [] {
+                false, false, false, false, false
+            };
+
+            public Class getColumnClass(int columnIndex) {
+                return types [columnIndex];
+            }
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
+        jScrollPane1.setViewportView(tblDokter);
+
+        ListDokter.add(jScrollPane1);
+        jScrollPane1.setBounds(543, 31, 576, 484);
+
+        btnTambahDokter.setText("tambah");
+        btnTambahDokter.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnTambahDokterActionPerformed(evt);
+            }
+        });
+        ListDokter.add(btnTambahDokter);
+        btnTambahDokter.setBounds(50, 470, 143, 32);
+        ListDokter.add(tfPassDokter);
+        tfPassDokter.setBounds(170, 410, 311, 24);
+
+        jLabel19.setBackground(new java.awt.Color(255, 255, 255));
+        jLabel19.setForeground(new java.awt.Color(0, 0, 0));
+        jLabel19.setText("password");
+        ListDokter.add(jLabel19);
+        jLabel19.setBounds(50, 410, 57, 16);
+        ListDokter.add(dcLahirDokter);
+        dcLahirDokter.setBounds(174, 201, 182, 29);
+        ListDokter.add(dcKerjaDokter);
+        dcKerjaDokter.setBounds(174, 236, 182, 29);
+
+        tfGenderDokter.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "F", "M" }));
+        ListDokter.add(tfGenderDokter);
+        tfGenderDokter.setBounds(174, 157, 40, 26);
+
+        jLabel20.setBackground(new java.awt.Color(255, 255, 255));
+        jLabel20.setForeground(new java.awt.Color(0, 0, 0));
+        jLabel20.setText("tanggal mulai kerja");
+        ListDokter.add(jLabel20);
+        jLabel20.setBounds(48, 236, 108, 16);
+
+        jLabel21.setBackground(new java.awt.Color(255, 255, 255));
+        jLabel21.setForeground(new java.awt.Color(0, 0, 0));
+        jLabel21.setText("Kode Poliklinik");
+        ListDokter.add(jLabel21);
+        jLabel21.setBounds(50, 290, 83, 16);
+
+        ListDokter.add(cbKdSpesialis1);
+        cbKdSpesialis1.setBounds(170, 310, 190, 26);
+
+        ListDokter.add(cbKdPoliklinik);
+        cbKdPoliklinik.setBounds(170, 280, 190, 26);
+
+        uwaw.add(ListDokter, "card2");
+
+        ListPasien.setBackground(new java.awt.Color(255, 255, 255));
+        ListPasien.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(153, 153, 153)));
+        ListPasien.setForeground(new java.awt.Color(0, 0, 0));
+
+        jLabel12.setFont(new java.awt.Font("Dialog", 1, 18)); // NOI18N
+        jLabel12.setForeground(new java.awt.Color(0, 0, 0));
+        jLabel12.setText("Tambah Data Pasien");
+
+        jLabel13.setBackground(new java.awt.Color(255, 255, 255));
+        jLabel13.setForeground(new java.awt.Color(0, 0, 0));
+        jLabel13.setText("nama");
+
+        jLabel14.setBackground(new java.awt.Color(255, 255, 255));
+        jLabel14.setForeground(new java.awt.Color(0, 0, 0));
+        jLabel14.setText("gender");
+
+        jLabel15.setBackground(new java.awt.Color(255, 255, 255));
+        jLabel15.setForeground(new java.awt.Color(0, 0, 0));
+        jLabel15.setText("Tanggal Lahir");
+
+        jLabel16.setBackground(new java.awt.Color(255, 255, 255));
+        jLabel16.setForeground(new java.awt.Color(0, 0, 0));
+        jLabel16.setText("Umur");
+
+        jLabel17.setBackground(new java.awt.Color(255, 255, 255));
+        jLabel17.setForeground(new java.awt.Color(0, 0, 0));
+        jLabel17.setText("no telepon");
+
+        jLabel18.setBackground(new java.awt.Color(255, 255, 255));
+        jLabel18.setForeground(new java.awt.Color(0, 0, 0));
+        jLabel18.setText("alamat");
+
+        tblPasien.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {null, null, null, null, null, null},
+                {null, null, null, null, null, null},
+                {null, null, null, null, null, null},
+                {null, null, null, null, null, null}
+            },
+            new String [] {
+                "Id Pasien", "Nama", "Umur", "Gender", "Telepon", "Pekerjaan"
+            }
+        ) {
+            Class[] types = new Class [] {
+                java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class
+            };
+            boolean[] canEdit = new boolean [] {
+                false, false, false, false, false, false
+            };
+
+            public Class getColumnClass(int columnIndex) {
+                return types [columnIndex];
+            }
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
+        jScrollPane2.setViewportView(tblPasien);
+
+        btnTambahPasien.setText("tambah");
+        btnTambahPasien.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnTambahPasienActionPerformed(evt);
+            }
+        });
+
+        tfPekerjaan.setBackground(new java.awt.Color(255, 255, 255));
+        tfPekerjaan.setForeground(new java.awt.Color(0, 0, 0));
+        tfPekerjaan.setText("Pekerjaan");
+
+        tfGenderPasien.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "F", "M" }));
+
+        javax.swing.GroupLayout ListPasienLayout = new javax.swing.GroupLayout(ListPasien);
+        ListPasien.setLayout(ListPasienLayout);
+        ListPasienLayout.setHorizontalGroup(
+            ListPasienLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(ListPasienLayout.createSequentialGroup()
+                .addGap(47, 47, 47)
+                .addGroup(ListPasienLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(ListPasienLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                        .addGroup(javax.swing.GroupLayout.Alignment.LEADING, ListPasienLayout.createSequentialGroup()
+                            .addGroup(ListPasienLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                .addComponent(jLabel15)
+                                .addComponent(jLabel14)
+                                .addComponent(jLabel13))
+                            .addGap(49, 49, 49)
+                            .addGroup(ListPasienLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                .addComponent(tfNamaPasien, javax.swing.GroupLayout.PREFERRED_SIZE, 311, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addComponent(tfGenderPasien, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addComponent(dcLahirPasien, javax.swing.GroupLayout.PREFERRED_SIZE, 149, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addGroup(ListPasienLayout.createSequentialGroup()
+                            .addGroup(ListPasienLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                                .addGroup(ListPasienLayout.createSequentialGroup()
+                                    .addComponent(jLabel17)
+                                    .addGap(67, 67, 67))
+                                .addGroup(javax.swing.GroupLayout.Alignment.LEADING, ListPasienLayout.createSequentialGroup()
+                                    .addComponent(jLabel16)
+                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                            .addGroup(ListPasienLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                .addComponent(tfUmurPasien)
+                                .addComponent(tfTeleponPasien, javax.swing.GroupLayout.PREFERRED_SIZE, 311, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                    .addComponent(jLabel12)
+                    .addComponent(btnTambahPasien, javax.swing.GroupLayout.PREFERRED_SIZE, 114, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(ListPasienLayout.createSequentialGroup()
+                        .addComponent(tfPekerjaan)
+                        .addGap(67, 67, 67)
+                        .addComponent(tfPekerjaanPasien, javax.swing.GroupLayout.PREFERRED_SIZE, 311, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(ListPasienLayout.createSequentialGroup()
+                        .addComponent(jLabel18)
+                        .addGap(87, 87, 87)
+                        .addComponent(tfAlamatPasien, javax.swing.GroupLayout.PREFERRED_SIZE, 311, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addGap(18, 18, 18)
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 647, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(87, Short.MAX_VALUE))
         );
-        jPanel1Layout.setVerticalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel1Layout.createSequentialGroup()
-                .addGap(67, 67, 67)
-                .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(82, 82, 82)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(btnPoliklinik)
-                    .addComponent(btnPasien)
-                    .addComponent(btnDokter)
-                    .addComponent(btnPegawai))
-                .addGap(32, 32, 32)
-                .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, 537, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(162, Short.MAX_VALUE))
-            .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                .addGroup(jPanel1Layout.createSequentialGroup()
-                    .addGap(0, 0, Short.MAX_VALUE)
-                    .addComponent(jLabel3)
-                    .addGap(612, 612, 612)
-                    .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                        .addGroup(jPanel1Layout.createSequentialGroup()
-                            .addGap(50, 50, 50)
-                            .addComponent(jLabel4))
-                        .addComponent(jLabel5))
-                    .addGap(0, 0, Short.MAX_VALUE)))
+        ListPasienLayout.setVerticalGroup(
+            ListPasienLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(ListPasienLayout.createSequentialGroup()
+                .addGroup(ListPasienLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(ListPasienLayout.createSequentialGroup()
+                        .addGap(53, 53, 53)
+                        .addComponent(jLabel12)
+                        .addGap(35, 35, 35)
+                        .addGroup(ListPasienLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jLabel13)
+                            .addComponent(tfNamaPasien, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(15, 15, 15)
+                        .addGroup(ListPasienLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jLabel14)
+                            .addComponent(tfGenderPasien, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(18, 18, 18)
+                        .addGroup(ListPasienLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(ListPasienLayout.createSequentialGroup()
+                                .addComponent(jLabel15)
+                                .addGap(22, 22, 22))
+                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, ListPasienLayout.createSequentialGroup()
+                                .addComponent(dcLahirPasien, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(18, 18, 18)))
+                        .addGroup(ListPasienLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(tfUmurPasien, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jLabel16))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addGroup(ListPasienLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jLabel17)
+                            .addComponent(tfTeleponPasien, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(ListPasienLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(tfPekerjaan)
+                            .addComponent(tfPekerjaanPasien, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(ListPasienLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jLabel18)
+                            .addComponent(tfAlamatPasien, javax.swing.GroupLayout.PREFERRED_SIZE, 53, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(32, 32, 32)
+                        .addComponent(btnTambahPasien))
+                    .addGroup(ListPasienLayout.createSequentialGroup()
+                        .addGap(30, 30, 30)
+                        .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 484, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
+
+        uwaw.add(ListPasien, "card2");
+
+        jPanel1.add(uwaw);
+        uwaw.setBounds(180, 370, 1238, 537);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -878,73 +793,144 @@ public class ViewAdmin extends javax.swing.JFrame {
         );
 
         pack();
+        setLocationRelativeTo(null);
     }// </editor-fold>//GEN-END:initComponents
 
-    private void btnBackMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btnBackMouseClicked
+    private void btnTambahDokterActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnTambahDokterActionPerformed
         // TODO add your handling code here:
-        ViewDashboard menu = new ViewDashboard();
-        menu.setVisible(true);
-        menu.setLocationRelativeTo(null);
-        dispose();
-    }//GEN-LAST:event_btnBackMouseClicked
-
-    private void jButton5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton5ActionPerformed
-        // TODO add your handling code here:
+        // nama , gender, tanggal lahir, tanggal mulai kerja, no telepon, alamat, pass
         
-    }//GEN-LAST:event_jButton5ActionPerformed
+        SimpleDateFormat dateformat = new SimpleDateFormat("yyyy-MM-dd");
+        
+        String nama = tfNamaDokter.getText();
+        String gender = tfGenderDokter.getSelectedItem().toString();
+        String tglLahir = dateformat.format(dcLahirDokter.getDate());
+        String mulaiKerja = dateformat.format(dcKerjaDokter.getDate());
+        String telepon = tfTeleponDokter.getText();
+        String alamat = tfAlamatDokter.getText();
+        String pass = auth.MD5(tfPassDokter.getText());
+        
+        tfNamaDokter.setText("");
+        tfGenderDokter.setSelectedIndex(0);
+        dcLahirDokter.setDate(null);
+        dcKerjaDokter.setDate(null);
+        tfTeleponDokter.setText("");
+        tfAlamatDokter.setText("");
+        tfPassDokter.setText("");
+        
+        
+        
+    }//GEN-LAST:event_btnTambahDokterActionPerformed
 
-    private void jButton7ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton7ActionPerformed
+    private void btnTambahPasienActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnTambahPasienActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_jButton7ActionPerformed
-
-    private void tambahActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_tambahActionPerformed
-        // TODO add your handling code here:
-        adminPanel.removeAll();
-        adminPanel.repaint();
-        adminPanel.revalidate();
-
-        adminPanel.add(ListPoliklinik);
-        adminPanel.repaint();
-        adminPanel.revalidate();
-    }//GEN-LAST:event_tambahActionPerformed
+        //nama, gender, tanggal lahir, umur , notelp, pekerjaan, alamat
+        
+        SimpleDateFormat dateformat = new SimpleDateFormat("yyyy-MM-dd");
+        
+        String nama = tfNamaPasien.getText();
+        String gender = tfGenderPasien.getSelectedItem().toString();
+        String tglLahir = dateformat.format(dcLahirPasien.getDate());
+        int umur = Integer.parseInt(tfUmurPasien.getText());
+        String telp = tfTeleponPasien.getText();
+        String pekerjaan = tfPekerjaanPasien.getText();
+        String alamat = tfAlamatPasien.getText();
+        
+        function.addPasien(nama, gender, tglLahir, telp, pekerjaan, alamat, umur);
+        function.loadPasien();
+        JOptionPane.showMessageDialog(this, "berhasil di tambahkan");
+        tfNamaPasien.setText("");
+        tfGenderPasien.setSelectedIndex(0);
+        dcLahirPasien.setDate(null);
+        tfUmurPasien.setText("");
+        tfTeleponPasien.setText("");
+        tfPekerjaanPasien.setText("");
+        tfAlamatPasien.setText("");
+        
+        ArrayList<Pasien> lol = function.sien();
+        modelPasien.setRowCount(0);
+        for (Pasien va: lol){
+            modelPasien.addRow(
+                  new Object[]{
+                       va.getId_pasien(),
+                       va.getNamaPasien(),
+                       va.getGenderPasien(),
+                       va.getUmur(),
+                       va.getPekerjaanPasien()
+                  }
+            );
+        }
+    }//GEN-LAST:event_btnTambahPasienActionPerformed
 
     private void btnPasienActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnPasienActionPerformed
         // TODO add your handling code here:
-        adminPanel.removeAll();
-        adminPanel.repaint();
-        adminPanel.revalidate();
+        uwaw.removeAll();
+        uwaw.repaint();
+        uwaw.revalidate();
 
-        adminPanel.add(ListPasien);
-        adminPanel.repaint();
-        adminPanel.revalidate();
+        uwaw.add(ListPasien);
+        uwaw.repaint();
+        uwaw.revalidate();
         
     }//GEN-LAST:event_btnPasienActionPerformed
 
     private void btnDokterActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDokterActionPerformed
         // TODO add your handling code here:
-        adminPanel.removeAll();
-        adminPanel.repaint();
-        adminPanel.revalidate();
+        uwaw.removeAll();
+        uwaw.repaint();
+        uwaw.revalidate();
 
-        adminPanel.add(ListDokter);
-        adminPanel.repaint();
-        adminPanel.revalidate();
+        uwaw.add(ListDokter);
+        uwaw.repaint();
+        uwaw.revalidate();
     }//GEN-LAST:event_btnDokterActionPerformed
-
-    private void jButton9ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton9ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jButton9ActionPerformed
 
     private void btnPegawaiActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnPegawaiActionPerformed
         // TODO add your handling code here:
-        adminPanel.removeAll();
-        adminPanel.repaint();
-        adminPanel.revalidate();
+        uwaw.removeAll();
+        uwaw.repaint();
+        uwaw.revalidate();
 
-        adminPanel.add(ListPegawai);
-        adminPanel.repaint();
-        adminPanel.revalidate();
+        uwaw.add(ListPegawai);
+        uwaw.repaint();
+        uwaw.revalidate();
     }//GEN-LAST:event_btnPegawaiActionPerformed
+
+    private void btnLogoutMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btnLogoutMouseClicked
+        // TODO add your handling code here:
+        ViewLogin menu = new ViewLogin();
+        menu.setVisible(true);
+        menu.setLocationRelativeTo(null);
+        dispose();
+    }//GEN-LAST:event_btnLogoutMouseClicked
+
+    private void tfPassKaryawanActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_tfPassKaryawanActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_tfPassKaryawanActionPerformed
+
+    private void btnTambahKaryawanActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnTambahKaryawanActionPerformed
+        // TODO add your handling code here:
+        // nama, gender, tanggal lahir, tanggal mulai kerja, no telpon, alamat status, pass
+        
+        SimpleDateFormat dateformat = new SimpleDateFormat("yyyy-MM-dd");
+        
+        String nama = tfNamaKaryawan.getText();
+        String gender = tfGenderKaryawan.getSelectedItem().toString();
+        String tglLahir = dateformat.format(dcLahirKaryawan.getDate());
+        String mulaiKerja = dateformat.format(dcMulaiKerjaKaryawan.getDate());
+        int status = 0;
+        if(cbStatus.getSelectedItem().toString().equalsIgnoreCase("admin")){
+            status = 1;
+        }
+        String pass = auth.MD5(tfPassKaryawan.getText());
+        
+        function.addKaryawan(nama, gender, tglLahir, mulaiKerja, pass, status);
+        function.loadKaryawan();
+        JOptionPane.showMessageDialog(this, "berhasil di tambahkan");
+        reset();
+        function.readKaryawan();
+        
+    }//GEN-LAST:event_btnTambahKaryawanActionPerformed
 
     /**
      * @param args the command line arguments
@@ -972,6 +958,9 @@ public class ViewAdmin extends javax.swing.JFrame {
             java.util.logging.Logger.getLogger(ViewAdmin.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
         //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
 
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
@@ -986,18 +975,21 @@ public class ViewAdmin extends javax.swing.JFrame {
     private javax.swing.JPanel ListDokter;
     private javax.swing.JPanel ListPasien;
     private javax.swing.JPanel ListPegawai;
-    private javax.swing.JPanel ListPoliklinik;
-    private javax.swing.JLabel btnBack;
     private javax.swing.JButton btnDokter;
+    private javax.swing.JLabel btnLogout;
     private javax.swing.JButton btnPasien;
     private javax.swing.JButton btnPegawai;
-    private javax.swing.JButton btnPoliklinik;
-    private javax.swing.JButton jButton10;
-    private javax.swing.JButton jButton5;
-    private javax.swing.JButton jButton6;
-    private javax.swing.JButton jButton7;
-    private javax.swing.JButton jButton8;
-    private javax.swing.JButton jButton9;
+    private javax.swing.JButton btnTambahDokter;
+    private javax.swing.JButton btnTambahKaryawan;
+    private javax.swing.JButton btnTambahPasien;
+    private javax.swing.JComboBox<String> cbKdPoliklinik;
+    private javax.swing.JComboBox<String> cbKdSpesialis1;
+    private javax.swing.JComboBox<String> cbStatus;
+    private com.toedter.calendar.JDateChooser dcKerjaDokter;
+    private com.toedter.calendar.JDateChooser dcLahirDokter;
+    private com.toedter.calendar.JDateChooser dcLahirKaryawan;
+    private com.toedter.calendar.JDateChooser dcLahirPasien;
+    private com.toedter.calendar.JDateChooser dcMulaiKerjaKaryawan;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel11;
@@ -1012,18 +1004,14 @@ public class ViewAdmin extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel20;
     private javax.swing.JLabel jLabel21;
-    private javax.swing.JLabel jLabel22;
-    private javax.swing.JLabel jLabel23;
-    private javax.swing.JLabel jLabel24;
-    private javax.swing.JLabel jLabel25;
     private javax.swing.JLabel jLabel26;
     private javax.swing.JLabel jLabel27;
     private javax.swing.JLabel jLabel28;
     private javax.swing.JLabel jLabel29;
-    private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel30;
-    private javax.swing.JLabel jLabel31;
-    private javax.swing.JLabel jLabel32;
+    private javax.swing.JLabel jLabel33;
+    private javax.swing.JLabel jLabel34;
+    private javax.swing.JLabel jLabel35;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
@@ -1032,40 +1020,27 @@ public class ViewAdmin extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel9;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
-    private javax.swing.JPanel jPanel3;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
-    private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JScrollPane jScrollPane4;
-    private javax.swing.JTable jTable1;
-    private javax.swing.JTable jTable2;
-    private javax.swing.JTable jTable3;
-    private javax.swing.JTable jTable4;
-    private javax.swing.JTextField jTextField1;
-    private javax.swing.JTextField jTextField10;
-    private javax.swing.JTextField jTextField11;
-    private javax.swing.JTextField jTextField12;
-    private javax.swing.JTextField jTextField13;
-    private javax.swing.JTextField jTextField14;
-    private javax.swing.JTextField jTextField15;
-    private javax.swing.JTextField jTextField16;
-    private javax.swing.JTextField jTextField17;
-    private javax.swing.JTextField jTextField18;
-    private javax.swing.JTextField jTextField19;
-    private javax.swing.JTextField jTextField2;
-    private javax.swing.JTextField jTextField20;
-    private javax.swing.JTextField jTextField21;
-    private javax.swing.JTextField jTextField22;
-    private javax.swing.JTextField jTextField23;
-    private javax.swing.JTextField jTextField24;
-    private javax.swing.JTextField jTextField3;
-    private javax.swing.JTextField jTextField4;
-    private javax.swing.JTextField jTextField5;
-    private javax.swing.JTextField jTextField6;
-    private javax.swing.JTextField jTextField7;
-    private javax.swing.JTextField jTextField8;
-    private javax.swing.JTextField jTextField9;
-    private javax.swing.JButton reset;
-    private javax.swing.JButton tambah;
+    private javax.swing.JTable tblDokter;
+    private javax.swing.JTable tblPasien;
+    private javax.swing.JTable tblPegawai;
+    private javax.swing.JTextField tfAlamatDokter;
+    private javax.swing.JTextField tfAlamatPasien;
+    private javax.swing.JComboBox<String> tfGenderDokter;
+    private javax.swing.JComboBox<String> tfGenderKaryawan;
+    private javax.swing.JComboBox<String> tfGenderPasien;
+    private javax.swing.JTextField tfNamaDokter;
+    private javax.swing.JTextField tfNamaKaryawan;
+    private javax.swing.JTextField tfNamaPasien;
+    private javax.swing.JTextField tfPassDokter;
+    private javax.swing.JTextField tfPassKaryawan;
+    private javax.swing.JLabel tfPekerjaan;
+    private javax.swing.JTextField tfPekerjaanPasien;
+    private javax.swing.JTextField tfTeleponDokter;
+    private javax.swing.JTextField tfTeleponPasien;
+    private javax.swing.JTextField tfUmurPasien;
+    private javax.swing.JPanel uwaw;
     // End of variables declaration//GEN-END:variables
 }

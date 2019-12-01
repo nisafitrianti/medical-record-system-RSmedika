@@ -47,8 +47,14 @@ public class ViewDokter extends javax.swing.JFrame {
     public ViewDokter(String session, int username) {
         initComponents();
         this.setLocationRelativeTo(null);
+        conn = Conf.databaseConnected();
+        auth = new Auth();
+        tblDokter.setModel(fc.getModelDokter());
         nama = session;
         id = username;
+        fc.setTableDokter();
+        fc.loadDokter();
+        fc.readDokter();
     }
 
     /**
@@ -216,7 +222,7 @@ public class ViewDokter extends javax.swing.JFrame {
 
     private void btnBackMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btnBackMouseClicked
         // TODO add your handling code here:
-        ViewDashboard menu = new ViewDashboard(nama);
+        ViewDashboard menu = new ViewDashboard(nama, id);
         menu.setVisible(true);
         menu.setLocationRelativeTo(null);
         dispose();

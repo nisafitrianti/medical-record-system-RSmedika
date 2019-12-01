@@ -5,6 +5,7 @@
  */
 package medical.record.View;
 
+import java.awt.event.KeyEvent;
 import java.sql.Connection;
 import javax.swing.JOptionPane;
 import medical.record.Controller.Auth;
@@ -30,6 +31,35 @@ public class ViewLogin extends javax.swing.JFrame {
         setLocationRelativeTo(null);
         conn = Conf.databaseConnected();
         authentication = new Auth();
+    }
+    
+    private void loginMethod(){
+        int username = Integer.parseInt(tfUsername.getText());
+        String password = authentication.MD5(String.valueOf(tfPassword.getPassword()));
+        
+        if(tfUsername.equals("")|| tfPassword.equals("")){
+            JOptionPane.showMessageDialog(this, "NIP dan password tidak boleh kosong");
+        }else{
+            authentication = new Auth(conn, username, password);
+            if(authentication.Login(username, password)){    
+                dispose();
+                
+                if(authentication.status() == 1){
+                    ViewAdmin min  = new ViewAdmin(authentication.session(), username);
+                    min.setVisible(true);
+                    min.setLocationRelativeTo(null);     
+                }else{
+                    ViewDashboard menu = new ViewDashboard(authentication.session(), username);
+                    menu.setVisible(true);
+                    menu.setLocationRelativeTo(null);
+                }
+                
+            }else{
+                System.out.println(conn);
+                JOptionPane.showMessageDialog(this, "Username atau Password tidak ditemukan ");
+            }
+            
+        }
     }
 
     /**
@@ -95,6 +125,11 @@ public class ViewLogin extends javax.swing.JFrame {
                 btnLoginActionPerformed(evt);
             }
         });
+        btnLogin.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                btnLoginKeyPressed(evt);
+            }
+        });
         btSubmit.add(btnLogin);
         btnLogin.setBounds(540, 660, 350, 60);
 
@@ -154,29 +189,7 @@ public class ViewLogin extends javax.swing.JFrame {
 
     private void btnLoginActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLoginActionPerformed
         // TODO add your handling code here:
-        int username = Integer.parseInt(tfUsername.getText());
-        String password = authentication.MD5(String.valueOf(tfPassword.getPassword()));
-        
-        if(tfUsername.equals("")|| tfPassword.equals("")){
-            JOptionPane.showMessageDialog(this, "NIP dan password tidak boleh kosong");
-        }else{
-            authentication = new Auth(conn, username, password);
-            if(authentication.Login(username, password)){    
-                JOptionPane.showMessageDialog(this, "Login Berhasil");
-                dispose();
-                
-                ViewDashboard menu = new ViewDashboard(authentication.session(), username);
-                menu.setVisible(true);
-                menu.setLocationRelativeTo(null);
-            }else{
-                System.out.println(conn);
-                JOptionPane.showMessageDialog(this, "Username atau Password tidak ditemukan ");
-            }
-            
-        }   
-        
-        
-        
+        loginMethod();
     }//GEN-LAST:event_btnLoginActionPerformed
 
     private void tfPasswordActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_tfPasswordActionPerformed
@@ -188,6 +201,13 @@ public class ViewLogin extends javax.swing.JFrame {
         // TODO add your handling code here:
         
     }//GEN-LAST:event_tfUsernameActionPerformed
+
+    private void btnLoginKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_btnLoginKeyPressed
+        // TODO add your handling code here:
+        if(evt.getKeyCode() == KeyEvent.VK_ENTER){
+            loginMethod();
+        }
+    }//GEN-LAST:event_btnLoginKeyPressed
 
     /**
      * @param args the command line arguments

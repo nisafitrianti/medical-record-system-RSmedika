@@ -6,6 +6,7 @@
 package medical.record.View;
 
 import java.sql.Connection;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import medical.record.Controller.Auth;
 import medical.record.Controller.Conf;
@@ -39,12 +40,10 @@ public class ViewDashboard extends javax.swing.JFrame {
     public ViewDashboard(String session, int username) {
         initComponents();
         this.setLocationRelativeTo(null);
+        conn = Conf.databaseConnected();
+        auth = new Auth();
         id = username;
         nama = session;
-        labelNama.setText(nama);
-    }
-
-    ViewDashboard(String nama) {
         labelNama.setText(nama);
     }
     
@@ -101,8 +100,10 @@ public class ViewDashboard extends javax.swing.JFrame {
         labelNama.setFont(new java.awt.Font("Dialog", 1, 36)); // NOI18N
         labelNama.setForeground(new java.awt.Color(0, 0, 0));
         labelNama.setText("Dr David");
+        labelNama.setToolTipText("");
+        labelNama.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
         jPanel1.add(labelNama);
-        labelNama.setBounds(680, 240, 150, 50);
+        labelNama.setBounds(520, 250, 420, 50);
 
         jLabel10.setBackground(new java.awt.Color(255, 255, 255));
         jLabel10.setFont(new java.awt.Font("Dialog", 0, 24)); // NOI18N

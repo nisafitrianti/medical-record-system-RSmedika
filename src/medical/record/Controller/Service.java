@@ -34,7 +34,7 @@ import medical.record.View.ViewRekamMedis;
 public class Service {
 
     Connection conn;    
-    DefaultTableModel modelDokter, modelPasien, modelRekamMedis, modelPoliklinik;
+    DefaultTableModel modelDokter, modelPasien, modelRekamMedis, modelPoliklinik, modelKaryawan;
     PreparedStatement preparedStatement;
     ResultSet neSet;
     
@@ -59,6 +59,11 @@ public class Service {
 
     public Service(Connection conn) {
         this.conn = conn;
+        modelDokter = new DefaultTableModel();
+        modelPasien = new DefaultTableModel();
+        modelPoliklinik = new DefaultTableModel();
+        modelRekamMedis = new DefaultTableModel();
+        modelKaryawan = new DefaultTableModel();
     }
     
     public Service() {
@@ -66,6 +71,7 @@ public class Service {
         modelPasien = new DefaultTableModel();
         modelPoliklinik = new DefaultTableModel();
         modelRekamMedis = new DefaultTableModel();
+        modelKaryawan = new DefaultTableModel();
         conn = Conf.databaseConnected();
     }
     
@@ -83,6 +89,18 @@ public class Service {
     
     public DefaultTableModel getModelRM() {
         return modelRekamMedis;
+    }
+    
+    public DefaultTableModel getModelKaryawan(){
+        return modelKaryawan;
+    }
+    
+    public ArrayList<Pasien> sien(){
+        return listPasien;
+    }
+    
+    public ArrayList<Dokter> ter(){
+        return listDokter;
     }
     
     public void setTableDokter(){
@@ -136,14 +154,27 @@ public class Service {
                       va.getTglLahirPasien(),
                       va.getNoTelpPasien(),
                       va.getPekerjaanPasien(),
-                      va.getAlamatPasien()
-                      
+                      va.getAlamatPasien()     
                   }
             );
         }
     }
     
-    public void readKaryawan(){}
+    public void readKaryawan(){
+        modelKaryawan.setRowCount(0);
+        for (Karyawan uwu : listKaryawan) {
+            modelKaryawan.addRow(
+                    new Object[]{
+                        uwu.getId_karyawan(),
+                        uwu.getNamaKaryawan(),
+                        uwu.getGenderKAryawan(),
+                        uwu.getTglLahir(),
+                        uwu.getTglMulaiKerja(),
+                        uwu.getStatus(),
+                    }
+            );
+        }
+    }
     
     public void readPoliklinik(){
         modelPoliklinik.setRowCount(0);
@@ -284,6 +315,46 @@ public class Service {
         }
     }
     
+    public void loadKaryawan(){
+        if(conn != null){
+            try{
+                String query = "SELECT * FROM karyawan";
+                listKaryawan = new ArrayList<>();
+                preparedStatement =  conn.prepareStatement(query);
+                neSet = preparedStatement.executeQuery();
+                
+                while(neSet.next()){
+                    int NIP = neSet.getInt("id_karyawan");
+                    String nama = neSet.getString("nama_karyawan");
+                    String gender = neSet.getString("jns_kelamin");
+                    String lahir = neSet.getString("tgl_lahir");
+                    String mulaiKerja = neSet.getString("tgl_mulai_bekerja");
+                    int status = neSet.getInt("status");
+                    
+                    karyawan = new Karyawan(
+                            NIP, 
+                            nama, 
+                            gender, 
+                            lahir, 
+                            mulaiKerja,
+                            status);
+                    
+                    listKaryawan.add(karyawan);
+                }
+                neSet.close();
+                preparedStatement.close();
+            }catch (Exception e) {
+                Logger.getLogger(ViewDokter.class.getName()).log(Level.SEVERE,null,e);     
+            }        
+        }else{
+            System.out.println("Disconnected");
+        }
+    }
+    
+    public void loadRekamMedis(){
+    
+    }
+    
     public void CariDokter(int keyword){
         modelDokter.setRowCount(0);
         loadDokter();
@@ -294,24 +365,52 @@ public class Service {
         }
     }
     
-      public void insertDokter(String nip, String nama, String spesialis, String poliklinik, String tglL, String gender,String tgl){
+    public void cariPasien(int keyword){
+        modelPasien.setRowCount(0);
+        loadPasien();
+        for (Pasien val : listPasien) {
+            if(val.getId_pasien() == keyword){
+                readPasien();
+            }
+        }
+    }
+    
+    public void cariPoliklinik(){
+        
+    }
+    
+      public void addDokter(
+              String nama,
+              String gender,
+              String tglLahir,
+              String MulaiKerja,
+              String telepon,
+              String alamat,
+              String pass,
+              int kdPoli,
+              int kdSpesialisasi
+              ){
         if(conn != null){
-            try{
-                String sql = "INSERT INTO dokter(id_dokter, nama_dokter, jns_kelamin, tgl_lahir,tgl_mulai_bekerja, kode_poliklinik, kode_spesialisasi) VALUES"
-                        + "(?,?,?,?,?,?,?)";
-                preparedStatement = conn.prepareStatement(sql);
-                preparedStatement.setString(1, nip);
-                preparedStatement.setString(2, nama);
-                preparedStatement.setString(3, gender);
-                preparedStatement.setString(4, tglL);
-                preparedStatement.setString(5, tgl);
-                preparedStatement.setString(6, poliklinik);
-                preparedStatement.setString(7, spesialis);
-                
-                preparedStatement.executeUpdate();
+            String query = "INSERT INTO dokter(nama_dokter,"
+                    + "gender_dokter, tgl_lahir, tgl_mulai_kerja,"
+                    + "no_telp, alamat, kode_poliklinik, kode_spesialisasi, "
+                    + "password_dokter) VALUE(?,?,?,?,?,?,?,?,?)";
             
+            try{
+                preparedStatement = conn.prepareStatement(query);
+                preparedStatement.setString(1, nama);
+                preparedStatement.setString(2, gender);
+                preparedStatement.setString(3, tglLahir);
+                preparedStatement.setString(4, MulaiKerja);
+                preparedStatement.setString(5, telepon);
+                preparedStatement.setString(6, alamat);
+                preparedStatement.setInt(7, kdPoli);
+                preparedStatement.setInt(8, kdSpesialisasi);
+                preparedStatement.setString(9, pass);
                 
-                
+                System.out.println(preparedStatement);
+                  preparedStatement.executeUpdate();
+                  System.out.println("berhasil oiy");
             }catch(SQLException e){
                 Logger.getLogger(ViewDokter.class.getName()).log(Level.SEVERE,null,e); 
             }
@@ -320,6 +419,8 @@ public class Service {
     }
       
       public void addRekamMedik(
+              // masih ngeBUG
+              Connection conn,
               int idPasien,  
               int idDokter, 
               int kdSpesialisasi, 
@@ -334,21 +435,12 @@ public class Service {
               String Pengobatan){
           if(conn != null){
               try{
-              String query = "INSERT INTO medical_record("
-                      + "jenis_rekam_medis, " //1
-                      + "id_pasien, " //2
-                      + "id_dokter, " //3
-                      + "kode_spesialisasi, " //4
-                      + "kode_poliklinik, "  //5
-                      + "kode_penyakit, " //6
-                      + "ruang_perawatan, "  //7
-                      + "tgl_masuk, "  //8
-                      + "tgl_keluar,"  //9
-                      + "pemeriksaan, "  //11
-                      + "tindakan, "  //12
-                      + "pengobatan) "  //13
-                      + "VALUES(?,?,?,?,?,?,?,?,?,?,?,?)";
+              String query = "INSERT INTO medical_record(jenis_rekam_medis,id_pasien, id_dokter, \n" +
+"                           kode_spesialisasi, kode_poliklinik, kode_penyakit, \n" +
+"                           ruang_perawatan, tgl_masuk, tgl_keluar, pemeriksaan, \n" +
+"                           tindakan, pengobatan) VALUES(?,?,?,?,?,?,?,?,?,?,?,?)";
              preparedStatement = conn.prepareStatement(query);
+             
              preparedStatement.setString(1, jenisRM);
              preparedStatement.setInt(2, idPasien);
              preparedStatement.setInt(3, idDokter);
@@ -361,6 +453,8 @@ public class Service {
              preparedStatement.setString(10, Pemeriksaan);
              preparedStatement.setString(11, Tindakan);
              preparedStatement.setString(12, Pengobatan);
+                  System.out.println(preparedStatement);
+                  preparedStatement.executeUpdate();
                   System.out.println("berhasil oiy");
             }catch(SQLException e){
                 Logger.getLogger(ViewRekamMedis.class.getName()).log(Level.SEVERE,null,e);
@@ -370,6 +464,72 @@ public class Service {
               System.out.println("Database not connected");
           }
       
+      }
+      
+      public void addKaryawan(
+              String nama,
+              String gender,
+              String tglLahir,
+              String mulaiKerja,
+              String pass,
+              int status
+      ){
+          if(conn != null){
+              try {
+                  String query = "INSERT INTO karyawan(nama_karyawan, jns_kelamin, tgl_lahir, tgl_mulai_bekerja,"
+                          + "status, password_karyawan) VALUES(?,?,?,?,?,?)";
+                  preparedStatement = conn.prepareStatement(query);
+                  
+                    preparedStatement.setString(1, nama);
+                    preparedStatement.setString(2, gender);
+                    preparedStatement.setString(3, tglLahir);
+                    preparedStatement.setString(4, mulaiKerja);
+                    preparedStatement.setInt(5, status);
+                    preparedStatement.setString(6, pass);
+                  System.out.println(preparedStatement);
+                  preparedStatement.executeUpdate();
+                  
+                  
+              } catch (Exception e) {
+                Logger.getLogger(ViewRekamMedis.class.getName()).log(Level.SEVERE,null,e);                  
+              }
+          }else{
+              System.out.println("Database not connected");
+          }
+      }
+      
+      public void addPasien(
+              String nama,
+              String gender,
+              String tglLahir,
+              String telp,
+              String pekerjaan,
+              String alamat,
+              int umur
+      ){
+         if(conn != null){
+              try {
+                  String query = "INSERT INTO pasien(nama_pasien, tgl_lahir, umur, telepon,"
+                          + "jns_kelamin, pekerjaan, alamat) VALUES(?,?,?,?,?,?,?)";
+                  preparedStatement = conn.prepareStatement(query);
+                  
+                    preparedStatement.setString(1, nama);
+                    preparedStatement.setString(2, tglLahir);
+                    preparedStatement.setInt(3, umur);
+                    preparedStatement.setString(4, telp);
+                    preparedStatement.setString(5, gender);
+                    preparedStatement.setString(6, pekerjaan);
+                    preparedStatement.setString(7, alamat);
+                  System.out.println(preparedStatement);
+                  preparedStatement.executeUpdate();
+                  
+                  
+              } catch (Exception e) {
+                Logger.getLogger(ViewRekamMedis.class.getName()).log(Level.SEVERE,null,e);                  
+              }
+          }else{
+              System.out.println("Database not connected");
+          } 
       }
       
 }

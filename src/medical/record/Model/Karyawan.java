@@ -19,16 +19,18 @@ public class Karyawan extends Auth{
     private String tglMulaiKerja;
     private String statusKaryawan;    
     private String password;
+    private int status;
 
     public Karyawan() {
     }
 
-    public Karyawan(int id_karyawan, String namaKaryawan, String genderKAryawan, String tglLahir, String tglMulaiKerja) {
+    public Karyawan(int id_karyawan, String namaKaryawan, String genderKAryawan, String tglLahir, String tglMulaiKerja, int Status) {
         this.id_karyawan = id_karyawan;
         this.namaKaryawan = namaKaryawan;
         this.genderKAryawan = genderKAryawan;
         this.tglLahir = tglLahir;
         this.tglMulaiKerja = tglMulaiKerja;
+        this.status = Status;
     }
  
     public Karyawan(int id_karyawan, String password) {
@@ -91,11 +93,13 @@ public class Karyawan extends Auth{
     public void setPassword(String password) {
         this.password = password;
     }
-    
-    
-    
-    
-    
-    
+
+    public int getStatus() {
+        return status;
+    }
+
+    public void setStatus(int status) {
+        this.status = status;
+    }
     
 }

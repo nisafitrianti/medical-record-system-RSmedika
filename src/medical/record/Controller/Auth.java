@@ -29,6 +29,7 @@ public class Auth {
     private int id;
     private String password;
     public String nama;
+    int str = 0;
 
     public int getId() {
         return id;
@@ -81,11 +82,11 @@ public class Auth {
             }else if(cekID == 2){
                 uname = "id_dokter";
                 pas = "password_dokter";
-                uwaw = "nama_dokter";                
+                uwaw = "nama_dokter";
             }            
             
             try{
-                String query = "SELECT karyawan.id_karyawan, karyawan.password_karyawan, karyawan.nama_karyawan,"
+                String query = "SELECT karyawan.id_karyawan, karyawan.password_karyawan, karyawan.nama_karyawan, karyawan.status, "
                         + " dokter.id_dokter, dokter.password_dokter, dokter.nama_dokter "
                         + "FROM karyawan,dokter WHERE "+ uname +" = ? AND "+ pas +" = ?";           
                 PreparedStatement ps = conn.prepareStatement(query);
@@ -93,6 +94,10 @@ public class Auth {
                 ps.setString(2 , pass);
                 ResultSet rs = ps.executeQuery();
                 if(rs.next()){
+                    if(uwaw.equals("nama_karyawan")){
+                       int wut = rs.getInt("status");
+                       str = wut == 1 ? 1 : 0; 
+                    }
                     nama = rs.getString(uwaw);
                     status = true;
                 }
@@ -123,6 +128,10 @@ public class Auth {
     
      public String session(){
          return nama;
+     }
+     
+     public int status(){
+         return str;
      }
 
     public String getNamaKaryawan() {

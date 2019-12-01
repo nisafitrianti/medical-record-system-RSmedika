@@ -12,6 +12,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -46,16 +47,63 @@ public final class ViewRekamMedis extends javax.swing.JFrame {
         function = new Service(conn);
         conn = Conf.databaseConnected();
         auth = new Auth();
-        loadSpesialisCB();
-        loadPenyakitCB();
-        loadPoliklinikCB();
+        function = new Service(conn);
+
     }
 
     public ViewRekamMedis(String session, int username) {
         initComponents();
         this.setLocationRelativeTo(null);
         id = username;
-        nama = session;    
+        nama = session;  
+        function = new Service(conn);
+        conn = Conf.databaseConnected();
+        auth = new Auth();
+        loadPasienCB();
+        loadDokterCB();
+        loadSpesialisCB();
+        loadPenyakitCB();
+        loadPoliklinikCB();
+    }
+    
+    public void loadPasienCB(){
+        try {
+            String query = "SELECT * FROM pasien";
+            PreparedStatement ps = conn.prepareStatement(query);
+            ResultSet neSet = ps.executeQuery();
+            while(neSet.next()){
+                Object[] obj = new Object[2];
+                obj[0] = neSet.getString(1);
+                obj[1] = neSet.getString(2);
+                cbIdPasien.addItem((String) obj[0] +" - "+ (String) obj[1]);
+            }
+            
+            neSet.close(); 
+            ps.close();
+            
+        } catch (SQLException ex) {
+            Logger.getLogger(Service.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+    
+    public void loadDokterCB(){
+        try {
+            String query = "SELECT * FROM dokter";
+            PreparedStatement ps = conn.prepareStatement(query);
+            ResultSet neSet = ps.executeQuery();
+            while(neSet.next()){
+                Object[] obj = new Object[2];
+                obj[0] = neSet.getString(1);
+                obj[1] = neSet.getString(2);
+                cbIdDokter.addItem((String) obj[0] +" - "+ (String) obj[1]);
+            }
+            
+            neSet.close(); 
+            ps.close();
+            
+        } catch (SQLException ex) {
+            Logger.getLogger(Service.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
     
      public void loadSpesialisCB(){
@@ -63,12 +111,11 @@ public final class ViewRekamMedis extends javax.swing.JFrame {
             String query = "SELECT * FROM spesialisasi";
             PreparedStatement ps = conn.prepareStatement(query);
             ResultSet neSet = ps.executeQuery();
-            
             while(neSet.next()){
                 Object[] obj = new Object[2];
                 obj[0] = neSet.getString(1);
                 obj[1] = neSet.getString(2);
-                cbKdSpesialis.addItem((String) obj[0] +" - "+ (String) obj[1]);
+                cbKdSpesialis1.addItem((String) obj[0] +" - "+ (String) obj[1]);
             }
             
             neSet.close(); 
@@ -91,7 +138,6 @@ public final class ViewRekamMedis extends javax.swing.JFrame {
                 obj[1] = neSet.getString(2);
                 cbKdPenyakit.addItem((String) obj[0] +" - "+ (String) obj[1]);
             }
-            
             neSet.close(); 
             ps.close();
             
@@ -105,7 +151,6 @@ public final class ViewRekamMedis extends javax.swing.JFrame {
             String query = "SELECT * FROM poliklinik";
             PreparedStatement ps = conn.prepareStatement(query);
             ResultSet neSet = ps.executeQuery();
-            
             while(neSet.next()){
                 Object[] obj = new Object[2];
                 obj[0] = neSet.getString(1);
@@ -137,8 +182,6 @@ public final class ViewRekamMedis extends javax.swing.JFrame {
         jLabel3 = new javax.swing.JLabel();
         jLabel1 = new javax.swing.JLabel();
         jLabel6 = new javax.swing.JLabel();
-        jLabel7 = new javax.swing.JLabel();
-        jLabel8 = new javax.swing.JLabel();
         jLabel9 = new javax.swing.JLabel();
         jLabel10 = new javax.swing.JLabel();
         jLabel11 = new javax.swing.JLabel();
@@ -149,10 +192,7 @@ public final class ViewRekamMedis extends javax.swing.JFrame {
         jLabel16 = new javax.swing.JLabel();
         jLabel17 = new javax.swing.JLabel();
         cbKdPoliklinik = new javax.swing.JComboBox<>();
-        tfNamaPasien = new javax.swing.JTextField();
-        tfNamaDokter = new javax.swing.JTextField();
         tfRuangRawat = new javax.swing.JTextField();
-        tfIdDokter = new javax.swing.JTextField();
         tfPemeriksa = new javax.swing.JTextField();
         tfTindakan = new javax.swing.JTextField();
         tfPengobatan = new javax.swing.JTextField();
@@ -162,11 +202,12 @@ public final class ViewRekamMedis extends javax.swing.JFrame {
         jLabel5 = new javax.swing.JLabel();
         jLabel20 = new javax.swing.JLabel();
         cbRekamMedis1 = new javax.swing.JComboBox<>();
-        cbKdSpesialis = new javax.swing.JComboBox<>();
+        cbIdDokter = new javax.swing.JComboBox<>();
         cbKdPenyakit = new javax.swing.JComboBox<>();
-        tfIdPasien = new javax.swing.JTextField();
         dcTglKeluar = new com.toedter.calendar.JDateChooser();
         dcTglMasuk = new com.toedter.calendar.JDateChooser();
+        cbKdSpesialis1 = new javax.swing.JComboBox<>();
+        cbIdPasien = new javax.swing.JComboBox<>();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setMaximumSize(new java.awt.Dimension(1440, 1024));
@@ -229,108 +270,87 @@ public final class ViewRekamMedis extends javax.swing.JFrame {
         jLabel1.setForeground(new java.awt.Color(0, 0, 0));
         jLabel1.setText("Jenis Rekam Medis : ");
         jPanel1.add(jLabel1);
-        jLabel1.setBounds(270, 170, 187, 24);
+        jLabel1.setBounds(270, 200, 187, 24);
 
         jLabel6.setBackground(new java.awt.Color(255, 255, 255));
         jLabel6.setFont(new java.awt.Font("Dialog", 1, 14)); // NOI18N
         jLabel6.setForeground(new java.awt.Color(0, 0, 0));
         jLabel6.setText("ID Dokter Pemerikasa : ");
         jPanel1.add(jLabel6);
-        jLabel6.setBounds(290, 310, 162, 19);
-
-        jLabel7.setBackground(new java.awt.Color(255, 255, 255));
-        jLabel7.setFont(new java.awt.Font("Dialog", 1, 14)); // NOI18N
-        jLabel7.setForeground(new java.awt.Color(0, 0, 0));
-        jLabel7.setText("Nama Pasien : ");
-        jPanel1.add(jLabel7);
-        jLabel7.setBounds(350, 270, 101, 19);
-
-        jLabel8.setBackground(new java.awt.Color(255, 255, 255));
-        jLabel8.setFont(new java.awt.Font("Dialog", 1, 14)); // NOI18N
-        jLabel8.setForeground(new java.awt.Color(0, 0, 0));
-        jLabel8.setText("Nama Dokter Pemeriksa : ");
-        jPanel1.add(jLabel8);
-        jLabel8.setBounds(270, 350, 178, 19);
+        jLabel6.setBounds(290, 300, 162, 19);
 
         jLabel9.setBackground(new java.awt.Color(255, 255, 255));
         jLabel9.setFont(new java.awt.Font("Dialog", 1, 14)); // NOI18N
         jLabel9.setForeground(new java.awt.Color(0, 0, 0));
         jLabel9.setText("Kode Spesialisasi : ");
         jPanel1.add(jLabel9);
-        jLabel9.setBounds(320, 390, 136, 19);
+        jLabel9.setBounds(320, 340, 136, 19);
 
         jLabel10.setBackground(new java.awt.Color(255, 255, 255));
         jLabel10.setFont(new java.awt.Font("Dialog", 1, 14)); // NOI18N
         jLabel10.setForeground(new java.awt.Color(0, 0, 0));
         jLabel10.setText("Ruang Perawatan : ");
         jPanel1.add(jLabel10);
-        jLabel10.setBounds(320, 520, 134, 19);
+        jLabel10.setBounds(320, 470, 134, 19);
 
         jLabel11.setBackground(new java.awt.Color(255, 255, 255));
         jLabel11.setFont(new java.awt.Font("Dialog", 1, 14)); // NOI18N
         jLabel11.setForeground(new java.awt.Color(0, 0, 0));
         jLabel11.setText("Kode Poliklinik : ");
         jPanel1.add(jLabel11);
-        jLabel11.setBounds(340, 490, 116, 19);
+        jLabel11.setBounds(340, 430, 116, 19);
 
         jLabel12.setBackground(new java.awt.Color(255, 255, 255));
         jLabel12.setFont(new java.awt.Font("Dialog", 1, 14)); // NOI18N
         jLabel12.setForeground(new java.awt.Color(0, 0, 0));
         jLabel12.setText("Pemeriksaan : ");
         jPanel1.add(jLabel12);
-        jLabel12.setBounds(350, 670, 102, 19);
+        jLabel12.setBounds(350, 620, 102, 19);
 
         jLabel13.setBackground(new java.awt.Color(255, 255, 255));
         jLabel13.setFont(new java.awt.Font("Dialog", 1, 14)); // NOI18N
         jLabel13.setForeground(new java.awt.Color(0, 0, 0));
         jLabel13.setText("Tanggal Masuk : ");
         jPanel1.add(jLabel13);
-        jLabel13.setBounds(340, 560, 117, 19);
+        jLabel13.setBounds(340, 510, 117, 19);
 
         jLabel14.setBackground(new java.awt.Color(255, 255, 255));
         jLabel14.setFont(new java.awt.Font("Dialog", 1, 14)); // NOI18N
         jLabel14.setForeground(new java.awt.Color(0, 0, 0));
         jLabel14.setText("Tanggal Keluar : ");
         jPanel1.add(jLabel14);
-        jLabel14.setBounds(340, 610, 117, 19);
+        jLabel14.setBounds(340, 560, 117, 19);
 
         jLabel15.setBackground(new java.awt.Color(255, 255, 255));
         jLabel15.setFont(new java.awt.Font("Dialog", 1, 14)); // NOI18N
         jLabel15.setForeground(new java.awt.Color(0, 0, 0));
         jLabel15.setText("Pengobatan : ");
         jPanel1.add(jLabel15);
-        jLabel15.setBounds(360, 840, 96, 19);
+        jLabel15.setBounds(360, 790, 96, 19);
 
         jLabel16.setBackground(new java.awt.Color(255, 255, 255));
         jLabel16.setFont(new java.awt.Font("Dialog", 1, 14)); // NOI18N
         jLabel16.setForeground(new java.awt.Color(0, 0, 0));
         jLabel16.setText("Tindakan : ");
         jPanel1.add(jLabel16);
-        jLabel16.setBounds(380, 750, 75, 19);
+        jLabel16.setBounds(380, 700, 75, 19);
 
         jLabel17.setBackground(new java.awt.Color(255, 255, 255));
         jLabel17.setFont(new java.awt.Font("Dialog", 1, 14)); // NOI18N
         jLabel17.setForeground(new java.awt.Color(0, 0, 0));
         jLabel17.setText("ID pasien : ");
         jPanel1.add(jLabel17);
-        jLabel17.setBounds(380, 230, 77, 19);
+        jLabel17.setBounds(380, 260, 77, 19);
 
-        jPanel1.add(cbKdPoliklinik);
-        cbKdPoliklinik.setBounds(470, 480, 190, 26);
-
-        tfNamaPasien.addActionListener(new java.awt.event.ActionListener() {
+        cbKdPoliklinik.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                tfNamaPasienActionPerformed(evt);
+                cbKdPoliklinikActionPerformed(evt);
             }
         });
-        jPanel1.add(tfNamaPasien);
-        tfNamaPasien.setBounds(470, 270, 670, 24);
-        jPanel1.add(tfNamaDokter);
-        tfNamaDokter.setBounds(470, 350, 670, 24);
+        jPanel1.add(cbKdPoliklinik);
+        cbKdPoliklinik.setBounds(470, 430, 190, 26);
         jPanel1.add(tfRuangRawat);
-        tfRuangRawat.setBounds(470, 520, 277, 24);
-        jPanel1.add(tfIdDokter);
-        tfIdDokter.setBounds(470, 310, 187, 24);
+        tfRuangRawat.setBounds(470, 470, 277, 24);
 
         tfPemeriksa.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -338,11 +358,11 @@ public final class ViewRekamMedis extends javax.swing.JFrame {
             }
         });
         jPanel1.add(tfPemeriksa);
-        tfPemeriksa.setBounds(470, 650, 670, 62);
+        tfPemeriksa.setBounds(470, 600, 670, 62);
         jPanel1.add(tfTindakan);
-        tfTindakan.setBounds(470, 730, 670, 63);
+        tfTindakan.setBounds(470, 680, 670, 63);
         jPanel1.add(tfPengobatan);
-        tfPengobatan.setBounds(470, 810, 670, 78);
+        tfPengobatan.setBounds(470, 760, 670, 78);
 
         btnTambah.setBackground(new java.awt.Color(16, 120, 123));
         btnTambah.setFont(new java.awt.Font("Dialog", 1, 18)); // NOI18N
@@ -354,7 +374,7 @@ public final class ViewRekamMedis extends javax.swing.JFrame {
             }
         });
         jPanel1.add(btnTambah);
-        btnTambah.setBounds(860, 910, 276, 46);
+        btnTambah.setBounds(860, 860, 276, 46);
 
         btnReset.setBackground(new java.awt.Color(16, 120, 123));
         btnReset.setFont(new java.awt.Font("Dialog", 1, 18)); // NOI18N
@@ -366,12 +386,12 @@ public final class ViewRekamMedis extends javax.swing.JFrame {
             }
         });
         jPanel1.add(btnReset);
-        btnReset.setBounds(630, 910, 218, 46);
+        btnReset.setBounds(620, 860, 218, 46);
 
         jLabel4.setForeground(new java.awt.Color(0, 153, 153));
         jLabel4.setIcon(new javax.swing.ImageIcon(getClass().getResource("/medical/record/assets/rekam-medik-asset/Group 41.png"))); // NOI18N
         jPanel1.add(jLabel4);
-        jLabel4.setBounds(0, 830, 127, 186);
+        jLabel4.setBounds(0, 840, 127, 186);
 
         jLabel5.setIcon(new javax.swing.ImageIcon(getClass().getResource("/medical/record/assets/rekam-medik-asset/Group 42.png"))); // NOI18N
         jPanel1.add(jLabel5);
@@ -380,30 +400,51 @@ public final class ViewRekamMedis extends javax.swing.JFrame {
         jLabel20.setBackground(new java.awt.Color(255, 255, 255));
         jLabel20.setFont(new java.awt.Font("Dialog", 1, 14)); // NOI18N
         jLabel20.setForeground(new java.awt.Color(0, 0, 0));
-        jLabel20.setText("Kode Penyakit");
+        jLabel20.setText("Kode Penyakit : ");
         jPanel1.add(jLabel20);
-        jLabel20.setBounds(340, 440, 100, 19);
+        jLabel20.setBounds(340, 380, 120, 19);
 
         cbRekamMedis1.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Rawat Jalan", "Rawat Inap", "Gawat Darurat" }));
         jPanel1.add(cbRekamMedis1);
-        cbRekamMedis1.setBounds(470, 170, 190, 26);
+        cbRekamMedis1.setBounds(470, 200, 190, 26);
 
-        cbKdSpesialis.addActionListener(new java.awt.event.ActionListener() {
+        cbIdDokter.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                cbKdSpesialisActionPerformed(evt);
+                cbIdDokterActionPerformed(evt);
             }
         });
-        jPanel1.add(cbKdSpesialis);
-        cbKdSpesialis.setBounds(470, 390, 190, 26);
+        jPanel1.add(cbIdDokter);
+        cbIdDokter.setBounds(470, 300, 190, 26);
 
+        cbKdPenyakit.setSelectedIndex(cbKdPenyakit.getSelectedIndex());
+        cbKdPenyakit.setSelectedItem(cbKdPenyakit);
+        cbKdPenyakit.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                cbKdPenyakitActionPerformed(evt);
+            }
+        });
         jPanel1.add(cbKdPenyakit);
-        cbKdPenyakit.setBounds(470, 440, 190, 26);
-        jPanel1.add(tfIdPasien);
-        tfIdPasien.setBounds(470, 230, 187, 24);
+        cbKdPenyakit.setBounds(470, 380, 190, 26);
         jPanel1.add(dcTglKeluar);
-        dcTglKeluar.setBounds(470, 610, 200, 29);
+        dcTglKeluar.setBounds(470, 560, 200, 29);
         jPanel1.add(dcTglMasuk);
-        dcTglMasuk.setBounds(470, 560, 200, 29);
+        dcTglMasuk.setBounds(470, 510, 200, 29);
+
+        cbKdSpesialis1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                cbKdSpesialis1ActionPerformed(evt);
+            }
+        });
+        jPanel1.add(cbKdSpesialis1);
+        cbKdSpesialis1.setBounds(470, 340, 190, 26);
+
+        cbIdPasien.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                cbIdPasienActionPerformed(evt);
+            }
+        });
+        jPanel1.add(cbIdPasien);
+        cbIdPasien.setBounds(470, 260, 190, 26);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -424,6 +465,93 @@ public final class ViewRekamMedis extends javax.swing.JFrame {
         setLocationRelativeTo(null);
     }// </editor-fold>//GEN-END:initComponents
 
+    private void cbIdPasienActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cbIdPasienActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_cbIdPasienActionPerformed
+
+    private void cbKdSpesialis1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cbKdSpesialis1ActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_cbKdSpesialis1ActionPerformed
+
+    private void cbKdPenyakitActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cbKdPenyakitActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_cbKdPenyakitActionPerformed
+
+    private void cbIdDokterActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cbIdDokterActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_cbIdDokterActionPerformed
+
+    private void btnResetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnResetActionPerformed
+        // TODO add your handling code here:
+        cbKdPoliklinik.setSelectedIndex(0);
+        cbKdPoliklinik.setSelectedIndex(0);
+        cbIdDokter.setSelectedIndex(0);
+        cbIdPasien.setSelectedIndex(0);
+        cbIdDokter.setSelectedItem(0);
+        tfPemeriksa.setText("");
+        tfRuangRawat.setText("");
+        dcTglMasuk.setDate(new Date());
+        dcTglKeluar.setDate(new Date());
+        tfTindakan.setText("");
+        tfPengobatan.setText("");
+    }//GEN-LAST:event_btnResetActionPerformed
+
+    private void btnTambahActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnTambahActionPerformed
+        // TODO add your handling code here:
+        SimpleDateFormat dateformat = new SimpleDateFormat("yyyy-MM-dd");
+
+        try {
+            String rekamMedis = cbRekamMedis1.getSelectedItem().toString();
+            int idPasien = Integer.parseInt(cbIdDokter.getSelectedItem().toString().substring(0,4));
+            int idDokter = Integer.parseInt(cbIdDokter.getSelectedItem().toString().substring(0,4));
+            int kdSpesialisasi = Integer.parseInt(cbIdDokter.getSelectedItem().toString().substring(0,4));
+            int kdPenyakit = Integer.parseInt(cbKdPenyakit.getSelectedItem().toString().substring(0,4));
+            int kdPoli = Integer.parseInt(cbKdPoliklinik.getSelectedItem().toString().substring(0,4));
+            String pemeriksa = tfPemeriksa.getText();
+            String ruangRawat = tfRuangRawat.getText();
+            String tglMasuk = dateformat.format(dcTglMasuk.getDate());
+            String tglKeluar = dateformat.format(dcTglMasuk.getDate());
+            String tindakan = tfTindakan.getText();
+            String pengobatan = tfPengobatan.getText();
+
+            if(rekamMedis.equals("") || idPasien==0 || idDokter==0 || kdPoli==0 || kdSpesialisasi==0
+                || kdPenyakit==0 || pemeriksa.equals("") || ruangRawat.equals("") || tglMasuk.equals("")
+                || tglKeluar.equals("") || tindakan.equals("") || pengobatan.equals("")){
+                JOptionPane.showMessageDialog(this, "pastikan untuk melengkapi semua field sebelum submit data");
+            }
+
+            function.addRekamMedik(
+                conn,
+                idPasien,
+                idDokter,
+                kdSpesialisasi,
+                kdPoli,
+                kdPenyakit,
+                rekamMedis,
+                ruangRawat,
+                tglMasuk,
+                tglKeluar,
+                pemeriksa,
+                tindakan,
+                pengobatan
+            );
+
+            JOptionPane.showMessageDialog(this, "berhasil di tambahkan");
+        }catch (NumberFormatException e) {
+            //JOptionPane.showMessageDialog(this, "inputan pada ID harus berupa angka" );
+            JOptionPane.showMessageDialog(this, e.getMessage());
+        }
+
+    }//GEN-LAST:event_btnTambahActionPerformed
+
+    private void tfPemeriksaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_tfPemeriksaActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_tfPemeriksaActionPerformed
+
+    private void cbKdPoliklinikActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cbKdPoliklinikActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_cbKdPoliklinikActionPerformed
+
     private void btnBackMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btnBackMouseClicked
         // TODO add your handling code here:
         ViewDashboard menu = new ViewDashboard(nama, id);
@@ -431,85 +559,6 @@ public final class ViewRekamMedis extends javax.swing.JFrame {
         menu.setLocationRelativeTo(null);
         dispose();
     }//GEN-LAST:event_btnBackMouseClicked
-
-    private void tfPemeriksaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_tfPemeriksaActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_tfPemeriksaActionPerformed
-
-    private void tfNamaPasienActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_tfNamaPasienActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_tfNamaPasienActionPerformed
-
-    private void btnResetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnResetActionPerformed
-        // TODO add your handling code here:
-        cbKdPoliklinik.setSelectedIndex(0);
-        tfIdPasien.setText("");
-        tfNamaPasien.setText("");
-        tfIdDokter.setText("");
-        tfNamaDokter.setText("");
-        cbKdPoliklinik.setSelectedIndex(0);
-        cbKdSpesialis.setSelectedIndex(0);
-        tfPemeriksa.setText("");
-        tfRuangRawat.setText("");
-        dcTglMasuk.setDate(new Date());
-        dcTglKeluar.setDate(new Date());
-        tfTindakan.setText("");
-        tfPengobatan.setText("");        
-    }//GEN-LAST:event_btnResetActionPerformed
-
-    private void btnTambahActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnTambahActionPerformed
-        // TODO add your handling code here:
-        
-        dcTglMasuk.setDateFormatString("yyyy-mm-dd");
-        dcTglKeluar.setDateFormatString("yyyy-mm-dd");
-                
-        try { 
-            String rekamMedis = cbKdPoliklinik.getSelectedItem().toString();
-            int idPasien = Integer.parseInt(tfIdPasien.getText());
-            int idDokter = Integer.parseInt(tfIdDokter.getText());
-            int kdSpesialisasi = Integer.parseInt(cbKdSpesialis.getSelectedItem().toString().substring(0,4));
-            int kdPenyakit = Integer.parseInt(cbKdPenyakit.getSelectedItem().toString().substring(0,4));
-            int kdPoli = Integer.parseInt(cbKdPoliklinik.getSelectedItem().toString().substring(0,4));            
-            String pemeriksa = tfPemeriksa.getText();
-            String ruangRawat = tfRuangRawat.getText();
-            String tglMasuk = ((JTextField)dcTglMasuk.getDateEditor().getUiComponent()).getText();
-            String tglKeluar = ((JTextField)dcTglKeluar.getDateEditor().getUiComponent()).getText();
-            String tindakan = tfTindakan.getText();
-            String pengobatan = tfPengobatan.getText(); 
-            
-            if(rekamMedis.equals("") || idPasien==0 || idDokter==0 || kdPoli==0 || kdSpesialisasi==0
-                    || kdPenyakit==0 || pemeriksa.equals("") || ruangRawat.equals("") || tglMasuk.equals("")
-                    || tglKeluar.equals("") || tindakan.equals("") || pengobatan.equals("")){
-                JOptionPane.showMessageDialog(this, "pastikan untuk melengkapi semua field sebelum submit data");
-            }
-
-            function.addRekamMedik(
-                    idPasien,
-                    idDokter,
-                    kdSpesialisasi,
-                    kdPoli,
-                    kdPenyakit,
-                    rekamMedis,
-                    ruangRawat,
-                    tglMasuk,
-                    tglKeluar,
-                    pemeriksa,
-                    tindakan,
-                    pengobatan
-            );
-            
-           JOptionPane.showMessageDialog(this, "berhasil di tambahkan");
-        }catch (NumberFormatException e) {
-            //JOptionPane.showMessageDialog(this, "inputan pada ID harus berupa angka" );     
-            JOptionPane.showMessageDialog(this, e.getMessage());                
-        }
-        
-        
-    }//GEN-LAST:event_btnTambahActionPerformed
-
-    private void cbKdSpesialisActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cbKdSpesialisActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_cbKdSpesialisActionPerformed
 
     /**
      * @param args the command line arguments
@@ -550,9 +599,11 @@ public final class ViewRekamMedis extends javax.swing.JFrame {
     private javax.swing.JLabel btnBack;
     private javax.swing.JButton btnReset;
     private javax.swing.JButton btnTambah;
+    private javax.swing.JComboBox<String> cbIdDokter;
+    private javax.swing.JComboBox<String> cbIdPasien;
     private javax.swing.JComboBox<String> cbKdPenyakit;
     private javax.swing.JComboBox<String> cbKdPoliklinik;
-    private javax.swing.JComboBox<String> cbKdSpesialis;
+    private javax.swing.JComboBox<String> cbKdSpesialis1;
     private javax.swing.JComboBox<String> cbRekamMedis1;
     private com.toedter.calendar.JDateChooser dcTglKeluar;
     private com.toedter.calendar.JDateChooser dcTglMasuk;
@@ -571,15 +622,9 @@ public final class ViewRekamMedis extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
-    private javax.swing.JLabel jLabel7;
-    private javax.swing.JLabel jLabel8;
     private javax.swing.JLabel jLabel9;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
-    private javax.swing.JTextField tfIdDokter;
-    private javax.swing.JTextField tfIdPasien;
-    private javax.swing.JTextField tfNamaDokter;
-    private javax.swing.JTextField tfNamaPasien;
     private javax.swing.JTextField tfPemeriksa;
     private javax.swing.JTextField tfPengobatan;
     private javax.swing.JTextField tfRuangRawat;
