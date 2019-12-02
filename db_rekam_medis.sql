@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Nov 27, 2019 at 02:49 AM
+-- Generation Time: Dec 02, 2019 at 03:41 AM
 -- Server version: 10.1.37-MariaDB
 -- PHP Version: 7.3.0
 
@@ -37,15 +37,16 @@ CREATE TABLE `dokter` (
   `no_telepon` varchar(12) NOT NULL,
   `alamat` varchar(100) NOT NULL,
   `kode_poliklinik` int(11) DEFAULT NULL,
-  `kode_spesialisasi` int(11) DEFAULT NULL
+  `kode_spesialisasi` int(11) DEFAULT NULL,
+  `password_dokter` varchar(255) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 --
 -- Dumping data for table `dokter`
 --
 
-INSERT INTO `dokter` (`id_dokter`, `nama_dokter`, `gender_dokter`, `tgl_lahir`, `tgl_mulai_kerja`, `no_telepon`, `alamat`, `kode_poliklinik`, `kode_spesialisasi`) VALUES
-(1011, 'Dr. Wisnu', 'M', '1998-10-06', '2019-11-12', '087653625123', 'jl. telekomunikasi telkom university', 3301, 2201);
+INSERT INTO `dokter` (`id_dokter`, `nama_dokter`, `gender_dokter`, `tgl_lahir`, `tgl_mulai_kerja`, `no_telepon`, `alamat`, `kode_poliklinik`, `kode_spesialisasi`, `password_dokter`) VALUES
+(2011, 'Dr. Wisnu', 'M', '1998-10-06', '2019-11-12', '087653625123', 'jl. telekomunikasi telkom university', 3301, 2201, '4a35609636702d4fe4419b8fc23a9bf7');
 
 -- --------------------------------------------------------
 
@@ -60,15 +61,22 @@ CREATE TABLE `karyawan` (
   `tgl_lahir` date NOT NULL,
   `tgl_mulai_bekerja` date NOT NULL,
   `status` tinyint(1) NOT NULL,
-  `password` varchar(255) NOT NULL
+  `password_karyawan` varchar(255) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 --
 -- Dumping data for table `karyawan`
 --
 
-INSERT INTO `karyawan` (`id_karyawan`, `nama_karyawan`, `jns_kelamin`, `tgl_lahir`, `tgl_mulai_bekerja`, `status`, `password`) VALUES
-(1021, 'caca', 'F', '2000-08-21', '2019-11-24', 1, '4a35609636702d4fe4419b8fc23a9bf7');
+INSERT INTO `karyawan` (`id_karyawan`, `nama_karyawan`, `jns_kelamin`, `tgl_lahir`, `tgl_mulai_bekerja`, `status`, `password_karyawan`) VALUES
+(1021, 'caca', 'F', '2000-08-21', '2019-11-24', 1, '4a35609636702d4fe4419b8fc23a9bf7'),
+(1022, 'hanipan', 'M', '2019-11-19', '2019-11-27', 0, '4a35609636702d4fe4419b8fc23a9bf7'),
+(1023, 'uwaw', 'F', '2019-12-10', '2019-12-17', 0, '479480de92cced9da16c448210d6109f'),
+(1024, 'dih', 'M', '2019-12-17', '2019-12-12', 1, '479480de92cced9da16c448210d6109f'),
+(1025, 'zapira', 'F', '2019-12-16', '2019-12-19', 1, '763c993dd84e43cbc5c210c11b5689cc'),
+(1026, 'zaza', 'F', '2019-12-03', '2019-12-11', 0, 'cf5a7c1819d3a998a228bbae64229aa2'),
+(1027, 'Goblok', 'F', '2019-12-17', '2019-12-26', 0, '05a208028929fd77cfb5b08096a837df'),
+(1028, 'sad', 'M', '2019-12-09', '2019-12-10', 0, '7dd87e1bac147f619208ad97426ef9df');
 
 -- --------------------------------------------------------
 
@@ -97,9 +105,12 @@ CREATE TABLE `medical_record` (
 --
 
 INSERT INTO `medical_record` (`id_medical_record`, `jenis_rekam_medis`, `id_pasien`, `id_dokter`, `kode_spesialisasi`, `kode_poliklinik`, `kode_penyakit`, `ruang_perawatan`, `tgl_masuk`, `tgl_keluar`, `pemeriksaan`, `tindakan`, `pengobatan`) VALUES
-(5012, 'rawat inap', 3011, 1011, 2202, 3301, 1102, 'hahahaha', '2019-11-20', '0000-00-00', ',mabsdjasb ', 'jasdajsbd', 'jksadhas'),
-(5013, 'jsa', 3011, 1011, 2201, 3302, 1101, 'as', '2019-11-11', '2019-11-20', 'as', 'as', 'as'),
-(5014, 'rawatinap', 3011, 1011, 2201, 3301, 1101, 'a', '0000-00-00', '0000-00-00', 'fg', 'jh', 'jjhb');
+(5012, 'rawat inap', 3011, 2011, 2202, 3301, 1102, 'hahahaha', '2019-11-20', '0000-00-00', ',mabsdjasb ', 'jasdajsbd', 'jksadhas'),
+(5013, 'jsa', 3011, 2011, 2201, 3302, 1101, 'as', '2019-11-11', '2019-11-20', 'as', 'as', 'as'),
+(5014, 'rawatinap', 3011, 2011, 2201, 3301, 1101, 'a', '0000-00-00', '0000-00-00', 'fg', 'jh', 'jjhb'),
+(5015, '3301 - poli org', 3011, 2011, 2201, 3301, 1101, 'asdasd', '2019-00-11', '0000-00-00', 'dfgd', 'dfgdf', 'sgds'),
+(5016, 'Rawat Jalan', 3011, 2011, 2201, 3301, 1101, 'asdasd', '0000-00-00', '0000-00-00', 'sdfghjkl', 'ertyu', '56ui'),
+(5017, 'Rawat Jalan', 3011, 2011, 2201, 3301, 1101, 'alksdask', '2019-11-03', '2019-11-03', 'kjdzkan', 'snkfjdshfnk', 'klsjisdkfhn');
 
 -- --------------------------------------------------------
 
@@ -247,19 +258,19 @@ ALTER TABLE `spesialisasi`
 -- AUTO_INCREMENT for table `dokter`
 --
 ALTER TABLE `dokter`
-  MODIFY `id_dokter` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1012;
+  MODIFY `id_dokter` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2012;
 
 --
 -- AUTO_INCREMENT for table `karyawan`
 --
 ALTER TABLE `karyawan`
-  MODIFY `id_karyawan` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1022;
+  MODIFY `id_karyawan` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1029;
 
 --
 -- AUTO_INCREMENT for table `medical_record`
 --
 ALTER TABLE `medical_record`
-  MODIFY `id_medical_record` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5015;
+  MODIFY `id_medical_record` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5018;
 
 --
 -- AUTO_INCREMENT for table `pasien`
